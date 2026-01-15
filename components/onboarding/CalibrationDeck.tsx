@@ -113,14 +113,6 @@ const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ 
         };
     });
 
-    if (currentIndex >= totalCards) {
-        return (
-            <View style={styles.container}>
-                <Text style={styles.cardText}>CALIBRATION COMPLETE</Text>
-            </View>
-        );
-    }
-
     const nextCardStyle = useAnimatedStyle(() => {
         const scale = interpolate(
             Math.abs(translateX.value),
@@ -151,6 +143,14 @@ const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ 
     // Get current and next images safely
     const currentImage = images[currentIndex];
     const nextImage = images[currentIndex + 1];
+
+    if (currentIndex >= totalCards) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.cardText}>CALIBRATION COMPLETE</Text>
+            </View>
+        );
+    }
 
     return (
         <GestureHandlerRootView style={styles.container}>
