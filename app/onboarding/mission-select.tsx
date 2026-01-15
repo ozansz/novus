@@ -1,16 +1,18 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
+// ... existing imports ...
+
 import ScreenLayout from '../../components/ScreenLayout';
 import MissionCard from '../../components/onboarding/MissionCard';
 import Colors from '../../constants/Colors';
 import { useNovusStore } from '../../stores/useNovusStore';
 
 const MISSIONS = [
-    { id: '01', title: 'DATE_NIGHT', key: 'mission_date' },
-    { id: '02', title: 'BOARDROOM', key: 'mission_boardroom' },
-    { id: '03', title: 'ACTIVE_DUTY', key: 'mission_active' },
-    { id: '04', title: 'NIGHT_OPS', key: 'mission_night' },
+    { id: '01', title: 'DATE_NIGHT', missionKey: 'mission_date' },
+    { id: '02', title: 'BOARDROOM', missionKey: 'mission_boardroom' },
+    { id: '03', title: 'ACTIVE_DUTY', missionKey: 'mission_active' },
+    { id: '04', title: 'NIGHT_OPS', missionKey: 'mission_night' },
 ];
 
 export default function MissionSelectScreen() {
@@ -36,35 +38,22 @@ export default function MissionSelectScreen() {
                 </View>
 
                 {/* Grid */}
-                <View style={styles.grid}>
-                    <View style={styles.row}>
-                        <MissionCard
-                            {...MISSIONS[0]}
-                            selected={selectedMission === MISSIONS[0].key}
-                            onPress={() => setSelectedMission(MISSIONS[0].key)}
-                        />
-                        <View style={{ width: 10 }} />
-                        <MissionCard
-                            {...MISSIONS[1]}
-                            selected={selectedMission === MISSIONS[1].key}
-                            onPress={() => setSelectedMission(MISSIONS[1].key)}
-                        />
-                    </View>
-                    <View style={{ height: 10 }} />
-                    <View style={styles.row}>
-                        <MissionCard
-                            {...MISSIONS[2]}
-                            selected={selectedMission === MISSIONS[2].key}
-                            onPress={() => setSelectedMission(MISSIONS[2].key)}
-                        />
-                        <View style={{ width: 10 }} />
-                        <MissionCard
-                            {...MISSIONS[3]}
-                            selected={selectedMission === MISSIONS[3].key}
-                            onPress={() => setSelectedMission(MISSIONS[3].key)}
-                        />
-                    </View>
-                </View>
+                <FlatList
+                    data={MISSIONS}
+                    keyExtractor={(item) => item.id}
+                    numColumns={2}
+                    columnWrapperStyle={styles.columnWrapper}
+                    contentContainerStyle={styles.gridContent}
+                    renderItem={({ item }) => (
+                        <View style={styles.cardWrapper}>
+                            <MissionCard
+                                {...item}
+                                selected={selectedMission === item.missionKey}
+                                onPress={() => setSelectedMission(item.missionKey)}
+                            />
+                        </View>
+                    )}
+                />
 
                 {/* Footer */}
                 <View style={styles.footer}>
@@ -107,6 +96,16 @@ const styles = StyleSheet.create({
     grid: {
         flex: 1,
         justifyContent: 'center',
+    },
+    gridContent: {
+        paddingBottom: 20,
+    },
+    columnWrapper: {
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    cardWrapper: {
+        width: '48%',
     },
     row: {
         flexDirection: 'row',

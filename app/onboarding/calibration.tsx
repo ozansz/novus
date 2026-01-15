@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import ScreenLayout from '../../components/ScreenLayout';
-import CalibrationDeck from '../../components/onboarding/CalibrationDeck';
+import CalibrationDeck, { CalibrationDeckRef } from '../../components/onboarding/CalibrationDeck';
 import Colors from '../../constants/Colors';
 import { useNovusStore } from '../../stores/useNovusStore';
 
@@ -11,20 +11,19 @@ const TOTAL_CARDS = 10;
 
 export default function CalibrationScreen() {
     const [index, setIndex] = useState(0);
+    const deckRef = useRef<CalibrationDeckRef>(null);
     const { setStyleVector } = useNovusStore();
 
     const handleSwipeRight = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         setIndex((prev) => prev + 1);
-        // Logic: Add to style vector (positive reinforcement)
-        // console.log('Accepted', index);
+        // Logic: Add to style vector
     };
 
     const handleSwipeLeft = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setIndex((prev) => prev + 1);
-        // Logic: Ignore or negative reinforcement
-        // console.log('Discarded', index);
+        // Logic: Ignore
     };
 
     const handleFinished = () => {
@@ -32,30 +31,44 @@ export default function CalibrationScreen() {
     };
 
     // If we exceeded cards, move on (handled by component or here)
-    if (index >= TOTAL_CARDS) {
-        handleFinished();
-    }
+    useEffect(() => {
+        if (index >= TOTAL_CARDS) {
+            const timeout = setTimeout(() => {
+                handleFinished();
+            }, 500);
+            return () => clearTimeout(timeout);
+        }
+    }, [index]);
 
     return (
         <ScreenLayout>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.title}>CALIBRATE STYLE</Text>
-                    <Text style={styles.counter}>IMG_0{index + 1} / {TOTAL_CARDS}</Text>
+                    <Text style={styles.counter}>IMG_0{Math.min(index + 1, TOTAL_CARDS)} / {TOTAL_CARDS}</Text>
                 </View>
 
                 <View style={styles.deckContainer}>
                     <CalibrationDeck
+                        ref={deckRef}
                         currentIndex={index}
                         totalCards={TOTAL_CARDS}
                         onSwipeRight={handleSwipeRight}
                         onSwipeLeft={handleSwipeLeft}
-                        onFinished={handleFinished}
                     />
                 </View>
 
                 <View style={styles.footer}>
-                    <Text style={styles.hintText}>SWIPE RIGHT TO ACCEPT // LEFT TO DISCARD</Text>
+                    <View style={styles.buttonRow}>
+                        <TouchableOpacity style={[styles.actionButton, styles.discardBtn]} onPress={() => deckRef.current?.swipeLeft()}>
+                            <Text style={styles.actionBtnText}>DISCARD</Text>
+                        </TouchableOpacity>
+                        <View style={{ width: 20 }} />
+                        <TouchableOpacity style={[styles.actionButton, styles.acceptBtn]} onPress={() => deckRef.current?.swipeRight()}>
+                            <Text style={[styles.actionBtnText, styles.acceptText]}>ACCEPT</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.hintText}>SWIPE OR PRESS TO CALIBRATE</Text>
                 </View>
             </View>
         </ScreenLayout>
@@ -86,11 +99,41 @@ const styles = StyleSheet.create({
     deckContainer: {
         flex: 1,
         marginTop: 20,
-        marginBottom: 40,
+        marginBottom: 20,
     },
     footer: {
         alignItems: 'center',
         marginBottom: 20,
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        marginBottom: 20,
+        width: '100%',
+        justifyContent: 'center',
+    },
+    actionButton: {
+        flex: 1,
+        paddingVertical: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+    },
+    discardBtn: {
+        borderColor: '#444',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    acceptBtn: {
+        borderColor: Colors.volt,
+        backgroundColor: 'rgba(208, 253, 62, 0.1)',
+    },
+    actionBtnText: {
+        fontFamily: 'Oswald_500Medium',
+        fontSize: 14,
+        color: '#888',
+        letterSpacing: 1,
+    },
+    acceptText: {
+        color: Colors.volt,
     },
     hintText: {
         fontFamily: 'JetBrainsMono_400Regular',

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
@@ -19,15 +19,19 @@ const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 interface CalibrationDeckProps {
     onSwipeRight: () => void;
     onSwipeLeft: () => void;
-    onFinished: () => void;
+    onFinished?: () => void;
     currentIndex: number;
     totalCards: number;
 }
 
-export default function CalibrationDeck({ onSwipeRight, onSwipeLeft, onFinished, currentIndex, totalCards }: CalibrationDeckProps) {
+export interface CalibrationDeckRef {
+    swipeRight: () => void;
+    swipeLeft: () => void;
+}
+
+const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ onSwipeRight, onSwipeLeft, onFinished, currentIndex, totalCards }, ref) => {
     const [activeCardIndex, setActiveCardIndex] = useState(0);
     const translateX = useSharedValue(0);
-    const cardScale = useSharedValue(1);
 
     const context = useSharedValue({ x: 0 });
 
@@ -41,47 +45,42 @@ export default function CalibrationDeck({ onSwipeRight, onSwipeLeft, onFinished,
         .onEnd(() => {
             if (translateX.value > SWIPE_THRESHOLD) {
                 // swipe right
-                translateX.value = withSpring(SCREEN_WIDTH * 1.5);
-                runOnJS(onSwipeRight)();
-                runOnJS(setActiveCardIndex)(activeCardIndex + 1);
+                translateX.value = withSpring(SCREEN_WIDTH * 1.5, {}, () => {
+                    runOnJS(onSwipeRight)();
+                });
 
             } else if (translateX.value < -SWIPE_THRESHOLD) {
                 // swipe left
-                translateX.value = withSpring(-SCREEN_WIDTH * 1.5);
-                runOnJS(onSwipeLeft)();
-                runOnJS(setActiveCardIndex)(activeCardIndex + 1);
+                translateX.value = withSpring(-SCREEN_WIDTH * 1.5, {}, () => {
+                    runOnJS(onSwipeLeft)();
+                });
             } else {
                 translateX.value = withSpring(0);
             }
         });
 
-    // Reset card position when index changes (logic handled better by key-ing component or resetting shared value via effect, 
-    // but for simplicity in this MVP, we might just assume the parent Unmounts/Remounts or we have a stack.
-    // Actually, a true deck implementation needs multiple cards rendered.
-    // Let's implement a visual stack of 2 cards: Current and Next.
+    useImperativeHandle(ref, () => ({
+        swipeRight: () => {
+            if (currentIndex < totalCards) {
+                translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+                    runOnJS(onSwipeRight)();
+                });
+            }
+        },
+        swipeLeft: () => {
+            if (currentIndex < totalCards) {
+                translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+                    runOnJS(onSwipeLeft)();
+                });
+            }
+        }
+    }));
 
-    if (currentIndex >= totalCards) {
-        runOnJS(onFinished)();
-        return null;
-    }
-
-    // We need to reset translateX when the index changes from the parent prop
-    // But since we are driving this from internal gestures, we need to sync.
-    // A better pattern for a quick MVP:
-    // Render the TOP card which is draggable.
-    // Render the BOTTOM card which is static.
-    // When top card is swiped away, it unmounts -> Bottom card becomes Top.
-
-    // Re-use logic:
-    // Let's assume the parent handles the "Current Index". 
-    // We just render a Card for the current index.
-    // When 'onSwipeRight' is called, parent increments index. 
-    // This component will re-render. We need to reset X.
-
-    // useEffect to reset
-    React.useEffect(() => {
+    // Reset card position when index changes
+    useEffect(() => {
         translateX.value = 0;
     }, [currentIndex]);
+
 
 
     const animatedStyle = useAnimatedStyle(() => {
@@ -112,6 +111,14 @@ export default function CalibrationDeck({ onSwipeRight, onSwipeLeft, onFinished,
         };
     });
 
+    if (currentIndex >= totalCards) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.cardText}>CALIBRATION COMPLETE</Text>
+            </View>
+        );
+    }
+
     return (
         <GestureHandlerRootView style={styles.container}>
             {/* Background Card (Next) */}
@@ -137,7 +144,9 @@ export default function CalibrationDeck({ onSwipeRight, onSwipeLeft, onFinished,
             </GestureDetector>
         </GestureHandlerRootView>
     );
-}
+});
+
+export default CalibrationDeck;
 
 const styles = StyleSheet.create({
     container: {
@@ -153,8 +162,7 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         borderWidth: 1,
         position: 'absolute',
-        borderRadius: 8, // Slight rounding as per design tweaks or keep strict 0 if VDD says so. VDD says 0.
-        // VDD says: Strictly Rectangular. 0px or 4px.
+        borderRadius: 0,
         overflow: 'hidden',
     },
     nextCard: {
@@ -195,5 +203,4 @@ const styles = StyleSheet.create({
         textShadowColor: 'rgba(0,0,0,0.8)',
         textShadowRadius: 10,
     }
-
 });
