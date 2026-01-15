@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, Image, ImageSourcePropType } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
     runOnJS,
@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Colors from '../../constants/Colors';
 
+
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 
@@ -22,6 +23,7 @@ interface CalibrationDeckProps {
     onFinished?: () => void;
     currentIndex: number;
     totalCards: number;
+    images: { name: string; source: ImageSourcePropType }[];
 }
 
 export interface CalibrationDeckRef {
@@ -29,7 +31,7 @@ export interface CalibrationDeckRef {
     swipeLeft: () => void;
 }
 
-const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ onSwipeRight, onSwipeLeft, onFinished, currentIndex, totalCards }, ref) => {
+const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ onSwipeRight, onSwipeLeft, onFinished, currentIndex, totalCards, images }, ref) => {
     const [activeCardIndex, setActiveCardIndex] = useState(0);
     const translateX = useSharedValue(0);
 
@@ -45,13 +47,13 @@ const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ 
         .onEnd(() => {
             if (translateX.value > SWIPE_THRESHOLD) {
                 // swipe right
-                translateX.value = withSpring(SCREEN_WIDTH * 1.5, {}, () => {
+                translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 250 }, () => {
                     runOnJS(onSwipeRight)();
                 });
 
             } else if (translateX.value < -SWIPE_THRESHOLD) {
                 // swipe left
-                translateX.value = withSpring(-SCREEN_WIDTH * 1.5, {}, () => {
+                translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 250 }, () => {
                     runOnJS(onSwipeLeft)();
                 });
             } else {
@@ -119,18 +121,54 @@ const CalibrationDeck = forwardRef<CalibrationDeckRef, CalibrationDeckProps>(({ 
         );
     }
 
+    const nextCardStyle = useAnimatedStyle(() => {
+        const scale = interpolate(
+            Math.abs(translateX.value),
+            [0, SCREEN_WIDTH],
+            [0.95, 1],
+            Extrapolation.CLAMP
+        );
+        const translateY = interpolate(
+            Math.abs(translateX.value),
+            [0, SCREEN_WIDTH],
+            [20, 0],
+            Extrapolation.CLAMP
+        );
+        const opacity = interpolate(
+            Math.abs(translateX.value),
+            [0, SCREEN_WIDTH],
+            [0.5, 1],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            transform: [{ scale }, { translateY }],
+            opacity,
+            zIndex: -1,
+        };
+    });
+
+    // Get current and next images safely
+    const currentImage = images[currentIndex];
+    const nextImage = images[currentIndex + 1];
+
     return (
         <GestureHandlerRootView style={styles.container}>
             {/* Background Card (Next) */}
-            <View style={[styles.card, styles.nextCard]}>
-                <View style={styles.placeholderImage} />
-            </View>
+            {nextImage && (
+                <Animated.View style={[styles.card, nextCardStyle]}>
+                    <Image source={nextImage.source} style={styles.image} resizeMode="cover" />
+                </Animated.View>
+            )}
 
             {/* Foreground Card (Active) */}
             <GestureDetector gesture={gesture}>
                 <Animated.View style={[styles.card, animatedStyle]}>
-                    <View style={styles.placeholderImage}>
-                        <Text style={styles.cardText}>STYLE_ID_{currentIndex + 1}</Text>
+                    <Image source={currentImage?.source} style={styles.image} resizeMode="cover" />
+
+                    {/* Style Label Overlay */}
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.styleName}>{currentImage?.name || `STYLE_0${currentIndex}`}</Text>
                     </View>
 
                     {/* Overlays */}
@@ -156,28 +194,38 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     card: {
-        width: SCREEN_WIDTH * 0.9,
-        height: '70%',
+        width: SCREEN_WIDTH * 0.85,
+        aspectRatio: 3 / 4,
         backgroundColor: Colors.surface,
         borderColor: Colors.border,
         borderWidth: 1,
         position: 'absolute',
-        borderRadius: 0,
+        borderRadius: 2,
         overflow: 'hidden',
     },
-    nextCard: {
-        transform: [{ scale: 0.95 }, { translateY: 10 }],
-        zIndex: -1,
-        opacity: 0.5,
+    image: {
+        width: '100%',
+        height: '100%',
     },
-    placeholderImage: {
-        flex: 1,
-        backgroundColor: '#222',
-        justifyContent: 'center',
-        alignItems: 'center',
+    labelContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        padding: 10,
+        borderTopWidth: 1,
+        borderTopColor: Colors.border,
+    },
+    styleName: {
+        color: '#FFF',
+        fontFamily: 'Oswald_500Medium',
+        fontSize: 16,
+        textAlign: 'center',
+        textTransform: 'uppercase',
     },
     cardText: {
-        color: '#444',
+        color: '#FFF',
         fontFamily: 'JetBrainsMono_400Regular',
     },
     overlay: {

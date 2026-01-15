@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
-import { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ImageSourcePropType } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import ScreenLayout from '../../components/ScreenLayout';
 import CalibrationDeck, { CalibrationDeckRef } from '../../components/onboarding/CalibrationDeck';
 import Colors from '../../constants/Colors';
 import { useNovusStore } from '../../stores/useNovusStore';
+import { SeedStyles } from '../../constants/SeedStyles';
+import { StyleImages } from '../../constants/StyleImages';
 
 const TOTAL_CARDS = 10;
 
@@ -13,6 +15,20 @@ export default function CalibrationScreen() {
     const [index, setIndex] = useState(0);
     const deckRef = useRef<CalibrationDeckRef>(null);
     const { setStyleVector } = useNovusStore();
+
+    // Select 10 random styles on mount
+    const selectedStyles = useMemo(() => {
+        // Shuffle array
+        const shuffled = [...SeedStyles].sort(() => 0.5 - Math.random());
+        // Take first 10
+        const selected = shuffled.slice(0, TOTAL_CARDS);
+        // Map to image sources
+        return selected.map(style => ({
+            name: style.name,
+            source: StyleImages[style.name]
+        }));
+    }, []);
+
 
     const handleSwipeRight = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -53,6 +69,7 @@ export default function CalibrationScreen() {
                         ref={deckRef}
                         currentIndex={index}
                         totalCards={TOTAL_CARDS}
+                        images={selectedStyles}
                         onSwipeRight={handleSwipeRight}
                         onSwipeLeft={handleSwipeLeft}
                     />

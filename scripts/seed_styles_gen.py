@@ -58,3 +58,23 @@ const_file += "];"
 
 with open("../constants/SeedStyles.ts", "w") as fp:
     fp.write(const_file)
+
+# Generate StyleImages.ts
+style_images_content = "export const StyleImages: Record<string, any> = {\n"
+
+for it in dd:
+    name = it[0]
+    # Replace spaces with underscores for the filename to match our convention
+    filename = name.replace(" ", "_")
+    
+    # Check if we should rename the file locally if it hasn't been done
+    if os.path.exists(f"styles/{name}.jpg") and name != filename:
+        os.rename(f"styles/{name}.jpg", f"styles/{filename}.jpg")
+        print(f"Renamed {name}.jpg to {filename}.jpg")
+
+    style_images_content += f"    \"{name}\": require('../assets/styles/{filename}.jpg'),\n"
+
+style_images_content += "};\n"
+
+with open("../constants/StyleImages.ts", "w") as fp:
+    fp.write(style_images_content)
