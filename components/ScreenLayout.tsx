@@ -7,7 +7,7 @@ interface ScreenLayoutProps {
     showHeader?: boolean; // For the SYS_READY bar
 }
 
-export default function ScreenLayout({ children, showHeader = true }: ScreenLayoutProps) {
+export default function ScreenLayout({ children, showHeader = false }: ScreenLayoutProps) {
     return (
         <SafeAreaView style={styles.container}>
             {/* Background Grid/Overlay Elements could go here */}
@@ -23,7 +23,7 @@ export default function ScreenLayout({ children, showHeader = true }: ScreenLayo
                 </View>
             )}
 
-            {/* HUD: Corner Crosshairs */}
+            {/* HUD: Corner Crosshairs
             <View style={[styles.crosshair, styles.topLeft]}>
                 <Text style={styles.crosshairText}>+</Text>
             </View>
@@ -35,7 +35,7 @@ export default function ScreenLayout({ children, showHeader = true }: ScreenLayo
             </View>
             <View style={[styles.crosshair, styles.bottomRight]}>
                 <Text style={styles.crosshairText}>+</Text>
-            </View>
+            </View> */}
 
             {/* Main Content */}
             <View style={styles.content}>
@@ -98,8 +98,4 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '300', // Thin
     },
-    topLeft: { top: 10, left: 10 },
-    topRight: { top: 10, right: 10 },
-    bottomLeft: { bottom: 10, left: 10 },
-    bottomRight: { bottom: 10, right: 10 },
 });

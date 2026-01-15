@@ -15,7 +15,7 @@ export default function ResultScreen() {
     }, []);
 
     const handleEnter = () => {
-        router.replace('/(tabs)/feed');
+        router.replace('/(tabs)/home');
     };
 
     return (

@@ -32,7 +32,7 @@ export default function FeedScreen() {
         <ScreenLayout>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>INTEL FEED</Text>
+                    <Text style={styles.title}>DISCOVER LOOKS</Text>
                 </View>
                 <FlashList
                     data={DATA}

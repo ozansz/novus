@@ -20,6 +20,12 @@ export default function TabLayout() {
                 tabBarInactiveTintColor: Colors.textBody,
             }}>
             <Tabs.Screen
+                name="home"
+                options={{
+                    tabBarIcon: ({ focused }) => <TabIcon name="home-outline" focused={focused} />,
+                }}
+            />
+            <Tabs.Screen
                 name="feed"
                 options={{
                     tabBarIcon: ({ focused }) => <TabIcon name="telescope-outline" focused={focused} />,

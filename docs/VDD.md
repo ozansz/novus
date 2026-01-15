@@ -64,7 +64,7 @@ Vibe: **"Industrial Dark."**
 * A massive button at the bottom labeled **[ INITIALIZE ]**.
 * When pressed, it flashes white before processing.
 
-### **2.3. The Feed (Intel Tab)**
+### **2.3. The Feed (Discover Tab)**
 
 * **Layout:** Single column. Large images.
 * **Overlays:**

@@ -9,7 +9,7 @@
 
 ### **1.1. The Vision**
 
-NOVUS is a **"Tactical Optimization Tool"** for men's style.
+NOVUS is a **"Event-Based Style Discovery Tool"** for men.
 Unlike browsing-based fashion apps, NOVUS is built to **solve** specific sartorial problems. Users view style as a utility—a lever to secure a better job, a second date, or respect in a meeting. NOVUS uses Generative AI to provide the "correct answer" to the question: *"What do I wear to X?"*
 
 ### **1.2. The User Psychology (The "Why")**
@@ -128,9 +128,9 @@ The NOVUS architecture targets the "Optimization Mindset":
 
 ## **4. Core Features (The Main Tabs)**
 
-### **4.1. Tab 1: INTEL (Feed)**
+### **4.1. Tab 2: DISCOVER (Feed)**
 
-**Goal:** Efficient inspiration. "What are other successful men wearing?"
+**Goal:** Efficient inspiration. "Discover what other successful men are wearing."
 
 * **Layout:** `FlashList` (Strict single-column or 2-column grid). No staggered masonry.
 * **Content:** Curated feed of high-performance looks.
@@ -139,7 +139,7 @@ The NOVUS architecture targets the "Optimization Mindset":
 * **CTA:** "SIMULATE ON ME (5 CREDITS)".
 * **Result:** User sees themselves in that exact outfit instantly.
 
-### **4.2. Tab 2: LAB (Creation)**
+### **4.2. Tab 3: LAB (Creation)**
 
 **Goal:** The Problem Solver. "I have a wedding in Italy. What do I wear?"
 
