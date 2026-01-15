@@ -4,33 +4,36 @@ import { Ionicons } from '@expo/vector-icons';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
 import { useRouter } from 'expo-router';
+import { StyleImages } from '../../constants/StyleImages';
 
 const { width } = Dimensions.get('window');
 
-// Data Mocks
+const SEASONAL_FOCUS_ENABLED = false;
+
+// Data Mocks with Real Images
 const LIKED_LOOKS = [
-    { id: 'l1', title: 'NIGHT_OPS', image: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=400' },
-    { id: 'l2', title: 'BOARDROOM', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=400' },
-    { id: 'l3', title: 'SUNDAY', image: 'https://images.unsplash.com/photo-1516826957135-700dedea698c?q=80&w=400' },
+    { id: 'l1', title: 'NIGHT_OPS', image: StyleImages["Techwear"] },
+    { id: 'l2', title: 'BOARDROOM', image: StyleImages["Business Formal"] },
+    { id: 'l3', title: 'SUNDAY', image: StyleImages["Casual Everyday"] },
 ];
 
-const SEASONAL_PROMOS = [
-    { id: '1', title: 'SUMMER_ESSENTIALS', subtitle: 'LIGHTWEIGHT', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800' },
-    { id: '2', title: 'WEDDING_SEASON', subtitle: 'FORMAL', image: 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=800' },
-    { id: '3', title: 'RAINY_DAYS', subtitle: 'TECHNICAL', image: 'https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?q=80&w=800' },
+const SEASONAL_FOCUS = [
+    { id: '1', title: 'SUMMER_ESSENTIALS', subtitle: 'LIGHTWEIGHT', image: StyleImages["Cyber-Linen"] },
+    { id: '2', title: 'WEDDING_SEASON', subtitle: 'FORMAL', image: StyleImages["Romantic Aesthetic"] },
+    { id: '3', title: 'RAINY_DAYS', subtitle: 'TECHNICAL', image: StyleImages["Hyperclean Techwear"] },
 ];
 
 const FOR_YOU = [
-    { id: '4', title: 'URBAN_MINIMAL', subtitle: 'TRENDING', image: 'https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?q=80&w=400' },
-    { id: '5', title: 'TECH_FLEECE', subtitle: 'MATCH', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=400' },
-    { id: '6', title: 'WEEKEND_RUGGED', subtitle: 'NEW', image: 'https://images.unsplash.com/photo-1516826957135-700dedea698c?q=80&w=400' },
+    { id: '4', title: 'URBAN_MINIMAL', subtitle: 'TRENDING', image: StyleImages["Minimalist Modern"] },
+    { id: '5', title: 'TECH_FLEECE', subtitle: 'MATCH', image: StyleImages["Quiet Luxury Sport"] },
+    { id: '6', title: 'WEEKEND_RUGGED', subtitle: 'NEW', image: StyleImages["Rugged Workwear"] },
 ];
 
-const SUGGESTED_EVENTS = [
-    { id: 'e1', title: 'TOKYO_TRIP', subtitle: 'TRAVEL / CITY / COMFORT', day: '24', month: 'OCT' },
-    { id: 'e2', title: 'FIRST_DATE', subtitle: 'SMART / CASUAL / IMPRESS', day: '02', month: 'NOV' },
-    { id: 'e3', title: 'MORNING_GYM', subtitle: 'PERFORMANCE / TECH', day: '03', month: 'NOV' },
-    { id: 'e4', title: 'BBQ_NIGHT', subtitle: 'RELAXED / OUTDOOR', day: '05', month: 'NOV' },
+const NEXT_ADVENTURES = [
+    { id: 'e1', title: 'TOKYO_TRIP', subtitle: 'URBAN EXPLORATION', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800' },
+    { id: 'e2', title: 'FIRST_DATE', subtitle: 'MAKE AN IMPRESSION', image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800' },
+    { id: 'e3', title: 'MORNING_GYM', subtitle: 'HIGH PERFORMANCE', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800' },
+    { id: 'e4', title: 'BBQ_NIGHT', subtitle: 'RELAXED SOCIAL', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800' },
 ];
 
 export default function HomeScreen() {
@@ -48,13 +51,11 @@ export default function HomeScreen() {
         router.push('/(tabs)/lab');
     };
 
-    const renderCardScroll = (data: any[], small = false) => (
+    const renderCardScroll = (data: any[]) => (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollSection}>
             {data.map((item) => (
-                <View key={item.id} style={[styles.card, small ? styles.cardSmall : styles.cardRegular]}>
-                    <View style={styles.imagePlaceholder}>
-                        <Text style={styles.placeholderText}>{item.title.split('_')[0]}</Text>
-                    </View>
+                <View key={item.id} style={styles.cardPortrait}>
+                    <Image source={typeof item.image === 'string' ? { uri: item.image } : item.image} style={styles.cardImage} resizeMode="cover" />
                     <View style={styles.cardOverlay}>
                         <Text style={styles.cardTitle}>{item.title.replace('_', ' ')}</Text>
                         {item.subtitle && <Text style={styles.cardSubtitle}>{item.subtitle}</Text>}
@@ -73,6 +74,10 @@ export default function HomeScreen() {
                     <Text style={styles.date}>JUNE 14, 2026</Text>
                 </View>
 
+                {/* Liked Looks */}
+                <Text style={styles.sectionTitle}>LIKED_LOOKS</Text>
+                {renderCardScroll(LIKED_LOOKS)}
+
                 {/* Primary CTA */}
                 <TouchableOpacity style={styles.ctaContainer} onPress={handleCreate}>
                     <View style={styles.ctaContent}>
@@ -84,34 +89,27 @@ export default function HomeScreen() {
                     </View>
                 </TouchableOpacity>
 
-                {/* Liked Looks */}
-                <Text style={styles.sectionTitle}>LIKED_LOOKS</Text>
-                {renderCardScroll(LIKED_LOOKS, true)}
+                {/* Seasonal Focus */}
+                {SEASONAL_FOCUS_ENABLED && <Text style={styles.sectionTitle}>SEASONAL_FOCUS</Text>}
+                {SEASONAL_FOCUS_ENABLED && renderCardScroll(SEASONAL_FOCUS)}
 
-                {/* Seasonal Focus - Reduced Size */}
-                {/* <Text style={styles.sectionTitle}>SEASONAL_FOCUS</Text>
-                {renderCardScroll(SEASONAL_PROMOS, true)} */}
-
-                {/* For You - Same UI as Seasonal */}
+                {/* For You */}
                 <Text style={styles.sectionTitle}>FOR_YOU</Text>
-                {renderCardScroll(FOR_YOU, true)}
+                {renderCardScroll(FOR_YOU)}
 
-                {/* Event Suggestions */}
-                <Text style={styles.sectionTitle}>SUGGESTED_EVENTS</Text>
-                {SUGGESTED_EVENTS.map((item) => (
-                    <View key={item.id} style={styles.eventCard}>
-                        <View style={styles.eventDate}>
-                            <Text style={styles.eventDay}>{item.day}</Text>
-                            <Text style={styles.eventMonth}>{item.month}</Text>
+                {/* Next Adventure */}
+                <Text style={styles.sectionTitle}>NEXT_ADVENTURE</Text>
+                {NEXT_ADVENTURES.map((item) => (
+                    <TouchableOpacity key={item.id} style={styles.adventureCard}>
+                        <Image source={{ uri: item.image }} style={styles.adventureImage} resizeMode="cover" />
+                        <View style={styles.adventureOverlay}>
+                            <View>
+                                <Text style={styles.adventureTitle}>{item.title.replace('_', ' ')}</Text>
+                                <Text style={styles.adventureSubtitle}>{item.subtitle}</Text>
+                            </View>
+                            <Ionicons name="arrow-forward" size={24} color={Colors.volt} />
                         </View>
-                        <View style={styles.eventInfo}>
-                            <Text style={styles.eventTitle}>{item.title.replace('_', ' ')}</Text>
-                            <Text style={styles.eventSubtitle}>{item.subtitle}</Text>
-                        </View>
-                        <TouchableOpacity style={styles.eventAction}>
-                            <Ionicons name="arrow-forward" size={20} color={Colors.volt} />
-                        </TouchableOpacity>
-                    </View>
+                    </TouchableOpacity>
                 ))}
 
                 <View style={{ height: 100 }} />
@@ -144,13 +142,15 @@ const styles = StyleSheet.create({
         fontFamily: 'Oswald_500Medium',
         fontSize: 18,
         color: Colors.textH1,
-        marginBottom: 8,
+        marginBottom: 10,
         letterSpacing: 1,
     },
     scrollSection: {
-        marginBottom: 20,
+        marginBottom: 25,
     },
-    card: {
+    cardPortrait: {
+        width: width * 0.45, // Slightly smaller width for 3:4 portrait feel
+        aspectRatio: 3 / 4,
         marginRight: 15,
         backgroundColor: Colors.surface,
         borderWidth: 1,
@@ -158,29 +158,14 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         overflow: 'hidden',
     },
-    cardRegular: {
-        width: width * 0.7,
-        height: 250,
-    },
-    cardSmall: {
-        width: width * 0.45,
-        height: 180,
-    },
-    imagePlaceholder: {
+    cardImage: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: '#1A1A1A',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    placeholderText: {
-        color: '#333',
-        fontFamily: 'Oswald_700Bold',
-        fontSize: 18,
-        textAlign: 'center',
+        width: '100%',
+        height: '100%',
     },
     cardOverlay: {
         padding: 12,
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'rgba(0,0,0,0.6)',
         width: '100%',
     },
     cardTitle: {
@@ -196,11 +181,11 @@ const styles = StyleSheet.create({
     },
     ctaContainer: {
         backgroundColor: Colors.volt,
-        padding: 20,
+        padding: 24,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 30,
     },
     ctaContent: {
         flex: 1,
@@ -225,48 +210,39 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    eventCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 20,
+    // Next Adventure Styles
+    adventureCard: {
+        width: '100%',
+        aspectRatio: 4 / 3, // Landscape
+        marginBottom: 20,
         borderWidth: 1,
         borderColor: Colors.border,
         backgroundColor: Colors.surface,
-        marginBottom: 15,
+        overflow: 'hidden',
+        justifyContent: 'flex-end',
     },
-    eventDate: {
+    adventureImage: {
+        ...StyleSheet.absoluteFillObject,
+        width: '100%',
+        height: '100%',
+    },
+    adventureOverlay: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingRight: 20,
-        borderRightWidth: 1,
-        borderRightColor: Colors.border,
-        width: 70,
+        padding: 20,
+        backgroundColor: 'rgba(0,0,0,0.6)',
     },
-    eventDay: {
-        fontFamily: 'Oswald_700Bold',
-        fontSize: 24,
+    adventureTitle: {
+        fontFamily: 'Oswald_500Medium',
+        fontSize: 20,
         color: '#FFF',
+        textTransform: 'uppercase',
     },
-    eventMonth: {
+    adventureSubtitle: {
         fontFamily: 'JetBrainsMono_400Regular',
         fontSize: 12,
         color: Colors.volt,
-    },
-    eventInfo: {
-        flex: 1,
-        paddingLeft: 20,
-    },
-    eventTitle: {
-        fontFamily: 'Oswald_500Medium',
-        fontSize: 18,
-        color: '#FFF',
-    },
-    eventSubtitle: {
-        fontFamily: 'JetBrainsMono_400Regular',
-        fontSize: 10,
-        color: '#888',
-        marginTop: 6,
-    },
-    eventAction: {
-        padding: 5,
+        marginTop: 4,
     }
 });
