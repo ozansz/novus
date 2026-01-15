@@ -12,7 +12,7 @@ export default function ArchetypeScreen() {
 
     const handleConfirm = () => {
         setArchetype(selected);
-        router.push('/onboarding/face-id');
+        router.push('/onboarding/intro-face');
     };
 
     return (

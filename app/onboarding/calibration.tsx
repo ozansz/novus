@@ -27,7 +27,7 @@ export default function CalibrationScreen() {
     };
 
     const handleFinished = () => {
-        router.push('/onboarding/height');
+        router.push('/onboarding/intro-data');
     };
 
     // If we exceeded cards, move on (handled by component or here)

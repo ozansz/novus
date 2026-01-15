@@ -13,6 +13,10 @@ const MISSIONS = [
     { id: '02', title: 'BOARDROOM', missionKey: 'mission_boardroom' },
     { id: '03', title: 'ACTIVE_DUTY', missionKey: 'mission_active' },
     { id: '04', title: 'NIGHT_OPS', missionKey: 'mission_night' },
+    { id: '05', title: 'CASUAL_FRIDAY', missionKey: 'mission_casual' },
+    { id: '06', title: 'GYM_SESSION', missionKey: 'mission_gym' },
+    { id: '07', title: 'TRAVEL_MODE', missionKey: 'mission_travel' },
+    { id: '08', title: 'SOCIAL_GATHERING', missionKey: 'mission_social' },
 ];
 
 export default function MissionSelectScreen() {

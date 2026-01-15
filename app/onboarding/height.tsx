@@ -14,12 +14,15 @@ export default function HeightScreen() {
     const handleValueChange = (val: number) => {
         if (val !== currentHeight) {
             setCurrentHeight(val);
-            Haptics.selectionAsync(); // Tick on change
+            Haptics.selectionAsync();
         }
     };
 
     const handleConfirm = () => {
         setHeight(currentHeight);
+        router.push('/onboarding/intro-data'); // Wait, intro-data comes BEFORE height? 
+        // No, flow is: Mission -> IntroData -> Height -> Weight -> Archetype -> IntroFace -> FaceID -> Processing -> Result
+        // So Height -> Weight
         router.push('/onboarding/weight');
     };
 
@@ -31,19 +34,15 @@ export default function HeightScreen() {
                         <Text style={styles.title}>VERTICAL METRICS</Text>
                         <Text style={styles.subtitle}>CALIBRATE HEIGHT DATA.</Text>
                     </View>
-
                     <View style={styles.valueDisplay}>
                         <Text style={styles.valueText}>{currentHeight}</Text>
                         <Text style={styles.unitText}>CM</Text>
                     </View>
-
-                    <View style={{ flex: 1 }} /> {/* Spacer */}
-
+                    <View style={{ flex: 1 }} />
                     <TouchableOpacity style={styles.button} onPress={handleConfirm}>
                         <Text style={styles.buttonText}>[ CONFIRM HEIGHT ]</Text>
                     </TouchableOpacity>
                 </View>
-
                 <View style={styles.rulerContainer}>
                     <VerticalRuler initialValue={currentHeight} onValueChange={handleValueChange} />
                 </View>
@@ -110,5 +109,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: Colors.deepBlack,
     }
-
 });
