@@ -15,13 +15,15 @@ export default function StyleDetailsScreen() {
     const router = useRouter();
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState<any>(null);
+    const [selectedItemName, setSelectedItemName] = useState<string>('');
 
     const seedKey = typeof id === 'string' ? id : 'Techwear'; // Default fallback
     const styleData = SeedStyles.find(s => s.name === seedKey) || SeedStyles[0];
     const imageSource = StyleImages[seedKey] || StyleImages["Techwear"];
 
-    const openImageModal = (image: any) => {
+    const openImageModal = (image: any, name: string) => {
         setSelectedImage(image);
+        setSelectedItemName(name);
         setModalVisible(true);
     };
 
@@ -77,7 +79,7 @@ export default function StyleDetailsScreen() {
                                 <View style={styles.garmentList}>
                                     {styleData.items?.map((item, index) => (
                                         <View key={index} style={styles.garmentRow}>
-                                            <TouchableOpacity onPress={() => openImageModal(styleData.item_images?.[index])} testID="garment-thumbnail">
+                                            <TouchableOpacity onPress={() => openImageModal(styleData.item_images?.[index], item)} testID="garment-thumbnail">
                                                 <Image
                                                     source={styleData.item_images?.[index]}
                                                     style={styles.garmentThumbnail}
@@ -134,15 +136,23 @@ export default function StyleDetailsScreen() {
                                 style={styles.modalContent}
                             >
                                 {selectedImage && (
-                                    <Image
-                                        source={selectedImage}
-                                        style={styles.fullScreenImage}
-                                        resizeMode="contain"
-                                        testID="modal-image"
-                                    />
+                                    <>
+                                        <Image
+                                            source={selectedImage}
+                                            style={styles.fullScreenImage}
+                                            resizeMode="contain"
+                                            testID="modal-image"
+                                        />
+                                        <View style={styles.captionContainer}>
+                                            <Text style={styles.captionText}>{selectedItemName}</Text>
+                                        </View>
+                                    </>
                                 )}
                             </Animated.View>
                         </TouchableWithoutFeedback>
+                        <TouchableOpacity onPress={closeImageModal} style={styles.closeButton} testID="close-modal-button">
+                            <Ionicons name="close-outline" size={32} color="#FFF" />
+                        </TouchableOpacity>
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
@@ -170,6 +180,29 @@ const styles = StyleSheet.create({
     fullScreenImage: {
         width: '90%',
         height: '100%',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 50,
+        right: 20,
+        zIndex: 20,
+        padding: 10,
+    },
+    captionContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 20,
+        right: 20,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    captionText: {
+        fontFamily: 'JetBrainsMono_400Regular',
+        fontSize: 14,
+        color: '#FFF',
+        textAlign: 'center',
     },
     header: {
         position: 'absolute',
