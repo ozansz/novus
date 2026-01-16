@@ -8,7 +8,7 @@ export default function IntroMissionScreen() {
             subtitle="SYSTEM INITIALIZATION"
             description="Select your primary objective to calibrate the optimization algorithm. Your choice defines the aesthetic parameters."
             confirmText="INITIALIZE"
-            onConfirm={() => router.push('/onboarding/mission-select')}
+            onConfirm={() => router.replace('/onboarding/mission-select')}
         />
     );
 }

@@ -28,7 +28,7 @@ export default function MissionSelectScreen() {
 
     const handleConfirm = () => {
         if (selectedMission) {
-            router.push('/onboarding/calibration');
+            router.replace('/onboarding/calibration');
         }
     };
 

@@ -7,12 +7,12 @@ import Colors from '../../constants/Colors';
 import { BuildArchetype, useNovusStore } from '../../stores/useNovusStore';
 
 export default function ArchetypeScreen() {
-    const { setArchetype } = useNovusStore();
+    const setArchetype = useNovusStore((state) => state.setArchetype);
     const [selected, setSelected] = useState<BuildArchetype>('Ectomorph');
 
     const handleConfirm = () => {
         setArchetype(selected);
-        router.push('/onboarding/intro-face');
+        router.replace('/onboarding/intro-face');
     };
 
     return (

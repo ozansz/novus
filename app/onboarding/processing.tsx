@@ -4,7 +4,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
-import { useNovusStore } from '../../stores/useNovusStore';
 
 const SEQUENCE = [
     '> ESTABLISHING SECURE CONNECTION...',
@@ -17,7 +16,6 @@ const SEQUENCE = [
 
 export default function ProcessingScreen() {
     const [lineIndex, setLineIndex] = useState(0);
-    const { biometrics } = useNovusStore();
 
     useEffect(() => {
         if (lineIndex < SEQUENCE.length) {
@@ -29,7 +27,7 @@ export default function ProcessingScreen() {
         } else {
             // Finished
             const timeout = setTimeout(() => {
-                router.push('/onboarding/result');
+                router.replace('/onboarding/result');
             }, 500);
             return () => clearTimeout(timeout);
         }

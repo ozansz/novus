@@ -6,10 +6,17 @@ import ScreenLayout from '../../components/ScreenLayout';
 import VerticalRuler from '../../components/onboarding/VerticalRuler';
 import Colors from '../../constants/Colors';
 import { useNovusStore } from '../../stores/useNovusStore';
+import { shallow } from 'zustand/shallow';
 
 export default function HeightScreen() {
-    const { setHeight, biometrics } = useNovusStore();
-    const [currentHeight, setCurrentHeight] = useState(biometrics.height || 180);
+    const { setHeight, height } = useNovusStore(
+        (state) => ({
+            setHeight: state.setHeight,
+            height: state.biometrics.height
+        }),
+        shallow
+    );
+    const [currentHeight, setCurrentHeight] = useState(height || 180);
 
     const handleValueChange = (val: number) => {
         if (val !== currentHeight) {
@@ -20,10 +27,7 @@ export default function HeightScreen() {
 
     const handleConfirm = () => {
         setHeight(currentHeight);
-        router.push('/onboarding/intro-data'); // Wait, intro-data comes BEFORE height? 
-        // No, flow is: Mission -> IntroData -> Height -> Weight -> Archetype -> IntroFace -> FaceID -> Processing -> Result
-        // So Height -> Weight
-        router.push('/onboarding/weight');
+        router.replace('/onboarding/weight');
     };
 
     return (

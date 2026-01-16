@@ -6,10 +6,17 @@ import ScreenLayout from '../../components/ScreenLayout';
 import MassRuler from '../../components/onboarding/MassRuler';
 import Colors from '../../constants/Colors';
 import { useNovusStore } from '../../stores/useNovusStore';
+import { shallow } from 'zustand/shallow';
 
 export default function WeightScreen() {
-    const { setWeight, biometrics } = useNovusStore();
-    const [currentWeight, setCurrentWeight] = useState(biometrics.weight || 75);
+    const { setWeight, weight } = useNovusStore(
+        (state) => ({
+            setWeight: state.setWeight,
+            weight: state.biometrics.weight
+        }),
+        shallow
+    );
+    const [currentWeight, setCurrentWeight] = useState(weight || 75);
 
     const handleValueChange = (val: number) => {
         if (val !== currentWeight) {
@@ -20,7 +27,7 @@ export default function WeightScreen() {
 
     const handleConfirm = () => {
         setWeight(currentWeight);
-        router.push('/onboarding/archetype');
+        router.replace('/onboarding/archetype');
     };
 
     return (
