@@ -1,23 +1,23 @@
+import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
     runOnJS,
+    scrollTo,
+    useAnimatedRef,
     useAnimatedScrollHandler,
     useSharedValue,
 } from 'react-native-reanimated';
 import Colors from '../../constants/Colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const ITEM_WIDTH = 10; // 10px per kg? No, maybe wider for precision.
-// Let's say 20px per unit (Kg). 
-const TICK_WIDTH = 2;
-const GAP_WIDTH = 18; // Total 20px item width
+const ITEM_WIDTH = 10;
+const ITEM_SIZE = 20;
 
 const MIN_WEIGHT = 40;
 const MAX_WEIGHT = 150;
 const ITEM_COUNT = MAX_WEIGHT - MIN_WEIGHT + 1;
-const ITEM_SIZE = 20;
 
 interface MassRulerProps {
     initialValue: number;
@@ -25,7 +25,9 @@ interface MassRulerProps {
 }
 
 export default function MassRuler({ initialValue, onValueChange }: MassRulerProps) {
-    const scrollX = useSharedValue(0);
+    const INITIAL_OFFSET = (initialValue - MIN_WEIGHT) * ITEM_SIZE;
+    const scrollX = useSharedValue(INITIAL_OFFSET);
+    const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
     // Center offset
     const CENTER_OFFSET = SCREEN_WIDTH / 2;
@@ -42,6 +44,30 @@ export default function MassRuler({ initialValue, onValueChange }: MassRulerProp
         }
     });
 
+    const handleAdjust = (direction: 'increase' | 'decrease') => {
+        const currentX = scrollX.value;
+        const delta = direction === 'increase' ? ITEM_SIZE : -ITEM_SIZE;
+        let targetX = currentX + delta;
+
+        // Snap to grid
+        targetX = Math.round(targetX / ITEM_SIZE) * ITEM_SIZE;
+
+        // Clamp
+        const maxOffset = (ITEM_COUNT - 1) * ITEM_SIZE;
+        targetX = Math.max(0, Math.min(targetX, maxOffset));
+
+        // We allow scrolling even if small diff to snap correctly
+        if (Math.abs(targetX - currentX) > 0.1) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            scrollTo(scrollRef, targetX, 0, true);
+
+            // Manually update value since onMomentumEnd might not fire for scrollTo
+            const index = Math.round(targetX / ITEM_SIZE);
+            const value = MIN_WEIGHT + index;
+            onValueChange(value);
+        }
+    };
+
     const items = Array.from({ length: ITEM_COUNT }).map((_, i) => {
         const val = MIN_WEIGHT + i;
         const isMajor = val % 5 === 0;
@@ -56,8 +82,18 @@ export default function MassRuler({ initialValue, onValueChange }: MassRulerProp
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity
+                style={[styles.adjustButton, styles.leftButton]}
+                onPress={() => handleAdjust('decrease')}
+                accessibilityLabel="Decrease weight"
+                accessibilityRole="button"
+            >
+                <Feather name="minus" size={24} color={Colors.volt} />
+            </TouchableOpacity>
+
             <View style={styles.centerLine} />
             <Animated.ScrollView
+                ref={scrollRef}
                 horizontal
                 style={styles.scroll}
                 contentContainerStyle={{
@@ -72,6 +108,15 @@ export default function MassRuler({ initialValue, onValueChange }: MassRulerProp
             >
                 {items}
             </Animated.ScrollView>
+
+            <TouchableOpacity
+                style={[styles.adjustButton, styles.rightButton]}
+                onPress={() => handleAdjust('increase')}
+                accessibilityLabel="Increase weight"
+                accessibilityRole="button"
+            >
+                <Feather name="plus" size={24} color={Colors.volt} />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -82,9 +127,27 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: 'transparent',
         justifyContent: 'center',
+        position: 'relative',
     },
     scroll: {
         flex: 1,
+    },
+    adjustButton: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        width: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 20,
+        backgroundColor: Colors.deepBlack, // Hides the ruler behind it
+        opacity: 0.9,
+    },
+    leftButton: {
+        left: 0,
+    },
+    rightButton: {
+        right: 0,
     },
     tickContainer: {
         alignItems: 'center',
