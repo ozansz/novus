@@ -4,6 +4,8 @@ import json
 import requests
 import fal_client
 import os
+import re
+import hashlib
 
 # MODEL = "fal-ai/bytedance/seedream/v4.5"
 MODEL = "fal-ai/flux-2"
@@ -12,6 +14,37 @@ def on_queue_update(update):
     if isinstance(update, fal_client.InProgress):
         for log in update.logs:
             print(log["message"])
+
+def sanitize_garment_description(description: str) -> str:
+    """
+    Sanitize garment description to avoid content policy violations.
+    Replaces problematic terms with safe alternatives.
+    """
+    # Replace "nude" with "beige" or "skin-tone" to avoid content policy issues
+    # Use word boundaries to avoid replacing "nudged" etc.
+    description = re.sub(r'\bnude\b', 'beige', description, flags=re.IGNORECASE)
+    description = re.sub(r'\bnude-colored\b', 'beige-colored', description, flags=re.IGNORECASE)
+    description = re.sub(r'\bnude-tone\b', 'skin-tone', description, flags=re.IGNORECASE)
+    
+    # Replace "mary jane" (flagged due to potential drug reference) with "T-strap" or "strap shoes"
+    # Handle various forms: "mary jane", "Mary Jane", "mary-jane", etc.
+    # Mary Jane shoes are characterized by a strap across the instep, so "T-strap" is appropriate
+    description = re.sub(r'\bmary\s*jane\b', 'T-strap', description, flags=re.IGNORECASE)
+    description = re.sub(r'\bmary-jane\b', 'T-strap', description, flags=re.IGNORECASE)
+    
+    # Replace "studs" when it might refer to jewelry (could be flagged)
+    # Only replace if it's clearly jewelry context, not structural studs
+    description = re.sub(r'\bsubtle\s+studs\s+or\s+no\s+jewelry\b', 'minimal jewelry', description, flags=re.IGNORECASE)
+    description = re.sub(r'\bstuds\s+or\s+no\s+jewelry\b', 'minimal jewelry', description, flags=re.IGNORECASE)
+    description = re.sub(r'\bsubtle\s+studs\b', 'small stud earrings', description, flags=re.IGNORECASE)
+    # Handle standalone "studs" in jewelry context (when followed by "for security" or similar)
+    description = re.sub(r'\bstuds\s+for\s+security\b', 'small earrings for security', description, flags=re.IGNORECASE)
+    
+    return description
+
+def get_cache_key(content: str) -> str:
+    """Generate a cache key from content"""
+    return hashlib.md5(content.encode()).hexdigest()
 
 with open('styles_v3.json') as fp:
     data = json.load(fp)
@@ -29,7 +62,8 @@ if not os.path.exists("styles"):
             MODEL,
             arguments={
                 "prompt": it[1],
-                "image_size": "portrait_4_3",
+                # "image_size": "portrait_4_3",
+                "image_size": "square_hd",
                 "num_images": 1,
                 "enable_safety_checker": True
             },
@@ -50,9 +84,13 @@ export const SeedStyles = [
 
 for it in dd:
     name=it[0]
+    items=it[1]
     scenario=it[2]
     vibe_tags=it[3]
-    const_file += f"    {{name: \"{name}\", scenario: \"{scenario}\", vibe_tags: {vibe_tags}}},\n"
+
+    item_images = [f"require('../assets/garments/{get_cache_key(sanitize_garment_description(item))}.jpg')" for item in items]
+
+    const_file += f"    {{name: \"{name}\", scenario: \"{scenario}\", vibe_tags: {vibe_tags}, items: {items}, item_images: [{', '.join(item_images)}] }},\n"
 
 const_file += "];"
 

@@ -5,28 +5,35 @@ import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { StyleImages } from '../../constants/StyleImages';
+import { SeedStyles } from '../../constants/SeedStyles';
 
 const { width } = Dimensions.get('window');
 
 const SEASONAL_FOCUS_ENABLED = false;
 
-// Data Mocks with Real Images
+// Helper to get subtitle from SeedStyles
+const getVibe = (key: string) => {
+    const style = SeedStyles.find(s => s.name === key);
+    return style ? style.vibe_tags[0].toUpperCase() : 'TRENDING';
+};
+
+// Data Mocks with Real Images and SeedKeys
 const LIKED_LOOKS = [
-    { id: 'l1', title: 'NIGHT_OPS', image: StyleImages["Techwear"] },
-    { id: 'l2', title: 'BOARDROOM', image: StyleImages["Business Formal"] },
-    { id: 'l3', title: 'SUNDAY', image: StyleImages["Casual Everyday"] },
+    { id: 'l1', title: 'NIGHT_OPS', seedKey: "Techwear" },
+    { id: 'l2', title: 'BOARDROOM', seedKey: "Business Formal" },
+    { id: 'l3', title: 'SUNDAY', seedKey: "Casual Everyday" },
 ];
 
 const SEASONAL_FOCUS = [
-    { id: '1', title: 'SUMMER_ESSENTIALS', subtitle: 'LIGHTWEIGHT', image: StyleImages["Cyber-Linen"] },
-    { id: '2', title: 'WEDDING_SEASON', subtitle: 'FORMAL', image: StyleImages["Romantic Aesthetic"] },
-    { id: '3', title: 'RAINY_DAYS', subtitle: 'TECHNICAL', image: StyleImages["Hyperclean Techwear"] },
+    { id: '1', title: 'SUMMER_ESSENTIALS', seedKey: "Cyber-Linen" },
+    { id: '2', title: 'WEDDING', seedKey: "Romantic Aesthetic" },
+    { id: '3', title: 'RAINY_DAYS', seedKey: "Hyperclean Techwear" },
 ];
 
 const FOR_YOU = [
-    { id: '4', title: 'URBAN_MINIMAL', subtitle: 'TRENDING', image: StyleImages["Minimalist Modern"] },
-    { id: '5', title: 'TECH_FLEECE', subtitle: 'MATCH', image: StyleImages["Quiet Luxury Sport"] },
-    { id: '6', title: 'WEEKEND_RUGGED', subtitle: 'NEW', image: StyleImages["Rugged Workwear"] },
+    { id: '4', title: 'URBAN_MINIMAL', seedKey: "Minimalist Modern" },
+    { id: '5', title: 'TECH_FLEECE', seedKey: "Quiet Luxury Sport" },
+    { id: '6', title: 'WEEKEND_RUGGED', seedKey: "Rugged Workwear" },
 ];
 
 const NEXT_ADVENTURES = [
@@ -51,17 +58,26 @@ export default function HomeScreen() {
         router.push('/(tabs)/lab');
     };
 
+    const handleCardPress = (seedKey: string) => {
+        router.push({ pathname: '/style/[id]', params: { id: seedKey } });
+    };
+
     const renderCardScroll = (data: any[]) => (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollSection}>
-            {data.map((item) => (
-                <View key={item.id} style={styles.cardPortrait}>
-                    <Image source={typeof item.image === 'string' ? { uri: item.image } : item.image} style={styles.cardImage} resizeMode="cover" />
-                    <View style={styles.cardOverlay}>
-                        <Text style={styles.cardTitle}>{item.title.replace('_', ' ')}</Text>
-                        {item.subtitle && <Text style={styles.cardSubtitle}>{item.subtitle}</Text>}
-                    </View>
-                </View>
-            ))}
+            {data.map((item) => {
+                const imageSource = StyleImages[item.seedKey] || { uri: item.image };
+                const subtitle = getVibe(item.seedKey);
+
+                return (
+                    <TouchableOpacity key={item.id} style={styles.cardPortrait} onPress={() => handleCardPress(item.seedKey)}>
+                        <Image source={imageSource} style={styles.cardImage} resizeMode="cover" />
+                        <View style={styles.cardOverlay}>
+                            <Text style={styles.cardTitle}>{item.title.replace('_', ' ')}</Text>
+                            <Text style={styles.cardSubtitle}>{subtitle}</Text>
+                        </View>
+                    </TouchableOpacity>
+                );
+            })}
         </ScrollView>
     );
 
@@ -149,7 +165,7 @@ const styles = StyleSheet.create({
         marginBottom: 25,
     },
     cardPortrait: {
-        width: width * 0.45, // Slightly smaller width for 3:4 portrait feel
+        width: width * 0.4, // Slightly smaller width for 3:4 portrait feel
         aspectRatio: 3 / 4,
         marginRight: 15,
         backgroundColor: Colors.surface,
