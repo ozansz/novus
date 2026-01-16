@@ -92,7 +92,7 @@ export default function StyleDetailsScreen() {
                         </View>
                     </View>
 
-                    <View style={{ height: 100 }} />
+                    <View style={{ height: 20 }} />
                 </View>
             </ScrollView>
 

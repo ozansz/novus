@@ -127,8 +127,6 @@ export default function HomeScreen() {
                         </View>
                     </TouchableOpacity>
                 ))}
-
-                <View style={{ height: 100 }} />
             </ScrollView>
         </ScreenLayout>
     );

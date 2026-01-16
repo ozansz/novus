@@ -41,7 +41,6 @@ export default function FeedScreen() {
                     estimatedItemSize={400}
                     keyExtractor={item => item.id}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.listContent}
                 />
             </View>
         </ScreenLayout>
@@ -61,9 +60,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Oswald_700Bold',
         fontSize: 24,
         color: Colors.textH1,
-    },
-    listContent: {
-        paddingBottom: 100,
     },
     card: {
         height: 400,

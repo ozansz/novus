@@ -9,7 +9,7 @@ interface ScreenLayoutProps {
 
 export default function ScreenLayout({ children, showHeader = false }: ScreenLayoutProps) {
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['right', 'left', 'top']}>
             {/* Background Grid/Overlay Elements could go here */}
 
             {/* HUD: Top Status Bar */}
@@ -22,20 +22,6 @@ export default function ScreenLayout({ children, showHeader = false }: ScreenLay
                     <Text style={styles.versionText}>V.1.0</Text>
                 </View>
             )}
-
-            {/* HUD: Corner Crosshairs
-            <View style={[styles.crosshair, styles.topLeft]}>
-                <Text style={styles.crosshairText}>+</Text>
-            </View>
-            <View style={[styles.crosshair, styles.topRight]}>
-                <Text style={styles.crosshairText}>+</Text>
-            </View>
-            <View style={[styles.crosshair, styles.bottomLeft]}>
-                <Text style={styles.crosshairText}>+</Text>
-            </View>
-            <View style={[styles.crosshair, styles.bottomRight]}>
-                <Text style={styles.crosshairText}>+</Text>
-            </View> */}
 
             {/* Main Content */}
             <View style={styles.content}>
@@ -84,18 +70,5 @@ const styles = StyleSheet.create({
         fontFamily: 'JetBrainsMono_400Regular',
         fontSize: 10,
         color: Colors.textBody,
-    },
-    crosshair: {
-        position: 'absolute',
-        width: 20,
-        height: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 5,
-    },
-    crosshairText: {
-        color: Colors.border,
-        fontSize: 20,
-        fontWeight: '300', // Thin
     },
 });
