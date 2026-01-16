@@ -1,8 +1,9 @@
 import { FlashList } from '@shopify/flash-list';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
+import Skeleton from '../../components/Skeleton';
 
 const DATA = [
     { id: '1', title: 'TOKYO_DRIFT', loc: 'SHIBUYA', tags: ['STREET', 'TECH'], image: null },
@@ -12,21 +13,41 @@ const DATA = [
 ];
 
 export default function FeedScreen() {
-    const renderItem = ({ item }: { item: any }) => (
-        <View style={styles.card}>
-            <View style={styles.imagePlaceholder}>
-                <Text style={styles.placeholderText}>IMG_{item.id}</Text>
-            </View>
-            <View style={styles.overlay}>
-                <View style={styles.metaRow}>
-                    <Text style={styles.metaText}>{item.loc} // {item.tags[0]}</Text>
-                    <View style={styles.simulateBtn}>
-                        <Text style={styles.btnText}>SIM</Text>
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate data fetching
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const renderItem = ({ item }: { item: any }) => {
+        if (loading) {
+            return (
+                <View style={styles.card}>
+                    <Skeleton width="100%" height="100%" />
+                </View>
+            );
+        }
+        return (
+            <View style={styles.card}>
+                <View style={styles.imagePlaceholder}>
+                    <Text style={styles.placeholderText}>IMG_{item.id}</Text>
+                </View>
+                <View style={styles.overlay}>
+                    <View style={styles.metaRow}>
+                        <Text style={styles.metaText}>{item.loc} // {item.tags[0]}</Text>
+                        <View style={styles.simulateBtn}>
+                            <Text style={styles.btnText}>SIM</Text>
+                        </View>
                     </View>
                 </View>
             </View>
-        </View>
-    );
+        );
+    };
 
     return (
         <ScreenLayout>
@@ -35,11 +56,11 @@ export default function FeedScreen() {
                     <Text style={styles.title}>DISCOVER LOOKS</Text>
                 </View>
                 <FlashList
-                    data={DATA}
+                    data={loading ? [1, 2, 3, 4] : DATA}
                     renderItem={renderItem}
                     // @ts-ignore
                     estimatedItemSize={400}
-                    keyExtractor={item => item.id}
+                    keyExtractor={(item) => (loading ? `skeleton-${item}` : item.id)}
                     showsVerticalScrollIndicator={false}
                 />
             </View>
