@@ -1,7 +1,8 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, Dimensions, ScrollView, TouchableOpacity, SafeAreaView, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import Colors from '../../constants/Colors';
 import { SeedStyles } from '../../constants/SeedStyles';
 import { StyleImages } from '../../constants/StyleImages';
@@ -12,10 +13,21 @@ const { width, height } = Dimensions.get('window');
 export default function StyleDetailsScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<any>(null);
 
     const seedKey = typeof id === 'string' ? id : 'Techwear'; // Default fallback
     const styleData = SeedStyles.find(s => s.name === seedKey) || SeedStyles[0];
     const imageSource = StyleImages[seedKey] || StyleImages["Techwear"];
+
+    const openImageModal = (image: any) => {
+        setSelectedImage(image);
+        setModalVisible(true);
+    };
+
+    const closeImageModal = () => {
+        setModalVisible(false);
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -65,11 +77,13 @@ export default function StyleDetailsScreen() {
                                 <View style={styles.garmentList}>
                                     {styleData.items?.map((item, index) => (
                                         <View key={index} style={styles.garmentRow}>
-                                            <Image
-                                                source={styleData.item_images?.[index]}
-                                                style={styles.garmentThumbnail}
-                                                resizeMode="cover"
-                                            />
+                                            <TouchableOpacity onPress={() => openImageModal(styleData.item_images?.[index])} testID="garment-thumbnail">
+                                                <Image
+                                                    source={styleData.item_images?.[index]}
+                                                    style={styles.garmentThumbnail}
+                                                    resizeMode="cover"
+                                                />
+                                            </TouchableOpacity>
                                             <Text style={styles.garmentText}>
                                                 {item}
                                             </Text>
@@ -105,6 +119,33 @@ export default function StyleDetailsScreen() {
                     <Text style={styles.reserveButtonText}>SIMULATE ON ME</Text>
                 </TouchableOpacity>
             </View>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={closeImageModal}
+            >
+                <TouchableWithoutFeedback onPress={closeImageModal}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <Animated.View
+                                entering={FadeInDown.duration(400)}
+                                style={styles.modalContent}
+                            >
+                                {selectedImage && (
+                                    <Image
+                                        source={selectedImage}
+                                        style={styles.fullScreenImage}
+                                        resizeMode="contain"
+                                        testID="modal-image"
+                                    />
+                                )}
+                            </Animated.View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -113,6 +154,22 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.deepBlack,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '100%',
+        height: '80%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullScreenImage: {
+        width: '90%',
+        height: '100%',
     },
     header: {
         position: 'absolute',
