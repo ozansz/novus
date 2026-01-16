@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
 import { useCreditStore } from '../../stores/useCreditStore';
 import * as Haptics from 'expo-haptics';
+import Skeleton from '../../components/Skeleton';
 
 export default function LabScreen() {
     const { credits, deductCredits } = useCreditStore();
     const [protocol, setProtocol] = useState('DATE');
     const [time, setTime] = useState('NIGHT');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleRun = () => {
         if (credits >= 10) {
@@ -34,32 +43,60 @@ export default function LabScreen() {
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.title}>SIMULATION LAB</Text>
-                    <Text style={styles.subtitle}>CREDITS: {credits}</Text>
+                    {loading ? (
+                        <Skeleton width={100} height={20} />
+                    ) : (
+                        <Text style={styles.subtitle}>CREDITS: {credits}</Text>
+                    )}
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.label}>PROTOCOL</Text>
-                    <View style={styles.row}>
-                        <Toggle label="DATE" active={protocol === 'DATE'} onPress={() => setProtocol('DATE')} />
-                        <Toggle label="OFFICE" active={protocol === 'OFFICE'} onPress={() => setProtocol('OFFICE')} />
-                        <Toggle label="EVENT" active={protocol === 'EVENT'} onPress={() => setProtocol('EVENT')} />
-                    </View>
-                </View>
+                {loading ? (
+                    <>
+                        <View style={styles.section}>
+                            <Skeleton width={80} height={15} style={{ marginBottom: 10 }} />
+                            <View style={styles.row}>
+                                <Skeleton width={100} height={40} />
+                                <Skeleton width={100} height={40} />
+                                <Skeleton width={100} height={40} />
+                            </View>
+                        </View>
+                        <View style={styles.section}>
+                            <Skeleton width={80} height={15} style={{ marginBottom: 10 }} />
+                            <View style={styles.row}>
+                                <Skeleton width={100} height={40} />
+                                <Skeleton width={100} height={40} />
+                            </View>
+                        </View>
+                        <View style={[styles.section, { flex: 1, justifyContent: 'flex-end', minHeight: 100 }]}>
+                            <Skeleton width="100%" height={60} />
+                        </View>
+                    </>
+                ) : (
+                    <>
+                        <View style={styles.section}>
+                            <Text style={styles.label}>PROTOCOL</Text>
+                            <View style={styles.row}>
+                                <Toggle label="DATE" active={protocol === 'DATE'} onPress={() => setProtocol('DATE')} />
+                                <Toggle label="OFFICE" active={protocol === 'OFFICE'} onPress={() => setProtocol('OFFICE')} />
+                                <Toggle label="EVENT" active={protocol === 'EVENT'} onPress={() => setProtocol('EVENT')} />
+                            </View>
+                        </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.label}>TIME VARIABLE</Text>
-                    <View style={styles.row}>
-                        <Toggle label="DAY" active={time === 'DAY'} onPress={() => setTime('DAY')} />
-                        <Toggle label="NIGHT" active={time === 'NIGHT'} onPress={() => setTime('NIGHT')} />
-                    </View>
-                </View>
+                        <View style={styles.section}>
+                            <Text style={styles.label}>TIME VARIABLE</Text>
+                            <View style={styles.row}>
+                                <Toggle label="DAY" active={time === 'DAY'} onPress={() => setTime('DAY')} />
+                                <Toggle label="NIGHT" active={time === 'NIGHT'} onPress={() => setTime('NIGHT')} />
+                            </View>
+                        </View>
 
-                <View style={[styles.section, { flex: 1, justifyContent: 'flex-end', minHeight: 100 }]}>
-                    <TouchableOpacity style={styles.runButton} onPress={handleRun}>
-                        <Text style={styles.runButtonText}>[ RUN SIMULATION (-10) ]</Text>
-                    </TouchableOpacity>
-                </View>
-
+                        <View style={[styles.section, { flex: 1, justifyContent: 'flex-end', minHeight: 100 }]}>
+                            <TouchableOpacity style={styles.runButton} onPress={handleRun}>
+                                <Text style={styles.runButtonText}>[ RUN SIMULATION (-10) ]</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </>
+                )}
             </ScrollView>
         </ScreenLayout>
     );

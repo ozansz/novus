@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
 import { useCreditStore } from '../../stores/useCreditStore';
 import { useNovusStore } from '../../stores/useNovusStore';
+import Skeleton from '../../components/Skeleton';
 
 export default function IDScreen() {
     const { credits, status } = useCreditStore();
     const { biometrics } = useNovusStore();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <ScreenLayout>
@@ -25,25 +34,46 @@ export default function IDScreen() {
 
                     <View style={styles.cardBody}>
                         <View style={styles.avatarContainer}>
-                            {biometrics.faceData ? (
+                            {loading ? (
+                                <Skeleton width="100%" height="100%" />
+                            ) : biometrics.faceData ? (
                                 <Image source={{ uri: biometrics.faceData }} style={styles.avatar} />
                             ) : (
                                 <View style={styles.avatarPlaceholder} />
                             )}
                         </View>
                         <View style={styles.infoCol}>
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>STATUS</Text>
-                                <Text style={styles.value}>{status}</Text>
-                            </View>
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>ARCHETYPE</Text>
-                                <Text style={styles.value}>{biometrics.buildArchetype || 'UNKNOWN'}</Text>
-                            </View>
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>CREDITS</Text>
-                                <Text style={[styles.value, { color: Colors.volt }]}>{credits}</Text>
-                            </View>
+                            {loading ? (
+                                <>
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>STATUS</Text>
+                                        <Skeleton width={80} height={16} />
+                                    </View>
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>ARCHETYPE</Text>
+                                        <Skeleton width={100} height={16} />
+                                    </View>
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>CREDITS</Text>
+                                        <Skeleton width={40} height={16} />
+                                    </View>
+                                </>
+                            ) : (
+                                <>
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>STATUS</Text>
+                                        <Text style={styles.value}>{status}</Text>
+                                    </View>
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>ARCHETYPE</Text>
+                                        <Text style={styles.value}>{biometrics.buildArchetype || 'UNKNOWN'}</Text>
+                                    </View>
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>CREDITS</Text>
+                                        <Text style={[styles.value, { color: Colors.volt }]}>{credits}</Text>
+                                    </View>
+                                </>
+                            )}
                         </View>
                     </View>
                 </View>
@@ -52,14 +82,29 @@ export default function IDScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>METRICS</Text>
                     <View style={styles.statGrid}>
-                        <View style={styles.statBox}>
-                            <Text style={styles.statNum}>12</Text>
-                            <Text style={styles.statLabel}>SIMULATIONS</Text>
-                        </View>
-                        <View style={styles.statBox}>
-                            <Text style={styles.statNum}>84%</Text>
-                            <Text style={styles.statLabel}>STYLE SCORE</Text>
-                        </View>
+                        {loading ? (
+                            <>
+                                <View style={styles.statBox}>
+                                    <Skeleton width={40} height={30} style={{ marginBottom: 4 }} />
+                                    <Skeleton width={80} height={12} />
+                                </View>
+                                <View style={styles.statBox}>
+                                    <Skeleton width={40} height={30} style={{ marginBottom: 4 }} />
+                                    <Skeleton width={80} height={12} />
+                                </View>
+                            </>
+                        ) : (
+                            <>
+                                <View style={styles.statBox}>
+                                    <Text style={styles.statNum}>12</Text>
+                                    <Text style={styles.statLabel}>SIMULATIONS</Text>
+                                </View>
+                                <View style={styles.statBox}>
+                                    <Text style={styles.statNum}>84%</Text>
+                                    <Text style={styles.statLabel}>STYLE SCORE</Text>
+                                </View>
+                            </>
+                        )}
                     </View>
                 </View>
 

@@ -6,6 +6,7 @@ import Colors from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { StyleImages } from '../../constants/StyleImages';
 import { SeedStyles } from '../../constants/SeedStyles';
+import Skeleton from '../../components/Skeleton';
 
 const { width } = Dimensions.get('window');
 
@@ -46,12 +47,20 @@ const NEXT_ADVENTURES = [
 export default function HomeScreen() {
     const router = useRouter();
     const [greeting, setGreeting] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const hour = new Date().getHours();
         if (hour >= 5 && hour < 12) setGreeting('GOOD MORNING');
         else if (hour >= 12 && hour < 17) setGreeting('GOOD AFTERNOON');
         else setGreeting('WELCOME BACK');
+
+        // Simulate data fetching
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
     }, []);
 
     const handleCreate = () => {
@@ -64,20 +73,26 @@ export default function HomeScreen() {
 
     const renderCardScroll = (data: any[]) => (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollSection}>
-            {data.map((item) => {
-                const imageSource = StyleImages[item.seedKey] || { uri: item.image };
-                const subtitle = getVibe(item.seedKey);
+            {loading
+                ? Array.from({ length: 3 }).map((_, index) => (
+                      <View key={index} style={styles.cardPortrait}>
+                          <Skeleton width="100%" height="100%" />
+                      </View>
+                  ))
+                : data.map((item) => {
+                      const imageSource = StyleImages[item.seedKey] || { uri: item.image };
+                      const subtitle = getVibe(item.seedKey);
 
-                return (
-                    <TouchableOpacity key={item.id} style={styles.cardPortrait} onPress={() => handleCardPress(item.seedKey)}>
-                        <Image source={imageSource} style={styles.cardImage} resizeMode="cover" />
-                        <View style={styles.cardOverlay}>
-                            <Text style={styles.cardTitle}>{item.title.replace('_', ' ')}</Text>
-                            <Text style={styles.cardSubtitle}>{subtitle}</Text>
-                        </View>
-                    </TouchableOpacity>
-                );
-            })}
+                      return (
+                          <TouchableOpacity key={item.id} style={styles.cardPortrait} onPress={() => handleCardPress(item.seedKey)}>
+                              <Image source={imageSource} style={styles.cardImage} resizeMode="cover" />
+                              <View style={styles.cardOverlay}>
+                                  <Text style={styles.cardTitle}>{item.title.replace('_', ' ')}</Text>
+                                  <Text style={styles.cardSubtitle}>{subtitle}</Text>
+                              </View>
+                          </TouchableOpacity>
+                      );
+                  })}
         </ScrollView>
     );
 
@@ -115,18 +130,24 @@ export default function HomeScreen() {
 
                 {/* Next Adventure */}
                 <Text style={styles.sectionTitle}>NEXT_ADVENTURE</Text>
-                {NEXT_ADVENTURES.map((item) => (
-                    <TouchableOpacity key={item.id} style={styles.adventureCard}>
-                        <Image source={{ uri: item.image }} style={styles.adventureImage} resizeMode="cover" />
-                        <View style={styles.adventureOverlay}>
-                            <View>
-                                <Text style={styles.adventureTitle}>{item.title.replace('_', ' ')}</Text>
-                                <Text style={styles.adventureSubtitle}>{item.subtitle}</Text>
-                            </View>
-                            <Ionicons name="arrow-forward" size={24} color={Colors.volt} />
-                        </View>
-                    </TouchableOpacity>
-                ))}
+                {loading
+                    ? Array.from({ length: 2 }).map((_, index) => (
+                          <View key={index} style={styles.adventureCard}>
+                              <Skeleton width="100%" height="100%" />
+                          </View>
+                      ))
+                    : NEXT_ADVENTURES.map((item) => (
+                          <TouchableOpacity key={item.id} style={styles.adventureCard}>
+                              <Image source={{ uri: item.image }} style={styles.adventureImage} resizeMode="cover" />
+                              <View style={styles.adventureOverlay}>
+                                  <View>
+                                      <Text style={styles.adventureTitle}>{item.title.replace('_', ' ')}</Text>
+                                      <Text style={styles.adventureSubtitle}>{item.subtitle}</Text>
+                                  </View>
+                                  <Ionicons name="arrow-forward" size={24} color={Colors.volt} />
+                              </View>
+                          </TouchableOpacity>
+                      ))}
             </ScrollView>
         </ScreenLayout>
     );

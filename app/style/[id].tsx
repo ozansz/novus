@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, ScrollView, TouchableOpacity, SafeAreaView, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import Colors from '../../constants/Colors';
 import { SeedStyles } from '../../constants/SeedStyles';
 import { StyleImages } from '../../constants/StyleImages';
 import ScreenLayout from '../../components/ScreenLayout';
+import Skeleton from '../../components/Skeleton';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,6 +17,15 @@ export default function StyleDetailsScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState<any>(null);
     const [selectedItemName, setSelectedItemName] = useState<string>('');
+    const [loading, setLoading] = useState(true);
+    const [modalImageLoading, setModalImageLoading] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const seedKey = typeof id === 'string' ? id : 'Techwear'; // Default fallback
     const styleData = SeedStyles.find(s => s.name === seedKey) || SeedStyles[0];
@@ -25,6 +35,7 @@ export default function StyleDetailsScreen() {
         setSelectedImage(image);
         setSelectedItemName(name);
         setModalVisible(true);
+        setModalImageLoading(true);
     };
 
     const closeImageModal = () => {
@@ -48,53 +59,97 @@ export default function StyleDetailsScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                <Image source={imageSource} style={styles.heroImage} resizeMode="cover" />
+                {loading ? (
+                    <Skeleton width="100%" height={height * 0.5} />
+                ) : (
+                    <Image source={imageSource} style={styles.heroImage} resizeMode="cover" />
+                )}
 
                 <View style={styles.contentContainer}>
-                    <Text style={[styles.title, { marginBottom: 20 }]}>{seedKey.toUpperCase()}</Text>
-
-                    <View style={styles.section}>
-                        <View style={styles.iconRow}>
-                            <Ionicons name="pin-outline" size={24} color="#FFF" />
-                            <View style={styles.iconTextContainer}>
-                                <Text style={styles.sectionHeader}>Occasion</Text>
-                                <Text style={styles.sectionBody}>
-                                    {styleData.scenario}
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={[styles.iconRow, { marginTop: 20 }]}>
-                            <Ionicons name="pricetag-outline" size={24} color="#FFF" />
-                            <View style={styles.iconTextContainer}>
-                                <Text style={styles.sectionHeader}>Atmosphere</Text>
-                                <Text style={styles.sectionBody}>
-                                    {styleData.vibe_tags.map(tag => tag.toUpperCase()).join(' • ')}
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={[styles.iconRow, { marginTop: 20 }]}>
-                            <Ionicons name="shirt-outline" size={24} color="#FFF" />
-                            <View style={styles.iconTextContainer}>
-                                <Text style={styles.sectionHeader}>Look Blueprint</Text>
-                                <View style={styles.garmentList}>
-                                    {styleData.items?.map((item, index) => (
-                                        <View key={index} style={styles.garmentRow}>
-                                            <TouchableOpacity onPress={() => openImageModal(styleData.item_images?.[index], item)} testID="garment-thumbnail">
-                                                <Image
-                                                    source={styleData.item_images?.[index]}
-                                                    style={styles.garmentThumbnail}
-                                                    resizeMode="cover"
-                                                />
-                                            </TouchableOpacity>
-                                            <Text style={styles.garmentText}>
-                                                {item}
-                                            </Text>
+                    {loading ? (
+                        <>
+                            <Skeleton width={200} height={40} style={{ marginBottom: 20 }} />
+                            <View style={styles.section}>
+                                <View style={styles.iconRow}>
+                                    <Skeleton width={24} height={24} borderRadius={12} />
+                                    <View style={styles.iconTextContainer}>
+                                        <Skeleton width={100} height={20} style={{ marginBottom: 4 }} />
+                                        <Skeleton width="100%" height={16} />
+                                    </View>
+                                </View>
+                                <View style={[styles.iconRow, { marginTop: 20 }]}>
+                                    <Skeleton width={24} height={24} borderRadius={12} />
+                                    <View style={styles.iconTextContainer}>
+                                        <Skeleton width={100} height={20} style={{ marginBottom: 4 }} />
+                                        <Skeleton width="100%" height={16} />
+                                    </View>
+                                </View>
+                                <View style={[styles.iconRow, { marginTop: 20 }]}>
+                                    <Skeleton width={24} height={24} borderRadius={12} />
+                                    <View style={styles.iconTextContainer}>
+                                        <Skeleton width={100} height={20} style={{ marginBottom: 4 }} />
+                                        <View style={styles.garmentList}>
+                                            <View style={styles.garmentRow}>
+                                                <Skeleton width={80} height={80} borderRadius={4} style={{ marginRight: 12 }} />
+                                                <Skeleton width={150} height={16} />
+                                            </View>
+                                            <View style={styles.garmentRow}>
+                                                <Skeleton width={80} height={80} borderRadius={4} style={{ marginRight: 12 }} />
+                                                <Skeleton width={150} height={16} />
+                                            </View>
                                         </View>
-                                    ))}
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    </View>
+                        </>
+                    ) : (
+                        <>
+                            <Text style={[styles.title, { marginBottom: 20 }]}>{seedKey.toUpperCase()}</Text>
+
+                            <View style={styles.section}>
+                                <View style={styles.iconRow}>
+                                    <Ionicons name="pin-outline" size={24} color="#FFF" />
+                                    <View style={styles.iconTextContainer}>
+                                        <Text style={styles.sectionHeader}>Occasion</Text>
+                                        <Text style={styles.sectionBody}>
+                                            {styleData.scenario}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={[styles.iconRow, { marginTop: 20 }]}>
+                                    <Ionicons name="pricetag-outline" size={24} color="#FFF" />
+                                    <View style={styles.iconTextContainer}>
+                                        <Text style={styles.sectionHeader}>Atmosphere</Text>
+                                        <Text style={styles.sectionBody}>
+                                            {styleData.vibe_tags.map(tag => tag.toUpperCase()).join(' • ')}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={[styles.iconRow, { marginTop: 20 }]}>
+                                    <Ionicons name="shirt-outline" size={24} color="#FFF" />
+                                    <View style={styles.iconTextContainer}>
+                                        <Text style={styles.sectionHeader}>Look Blueprint</Text>
+                                        <View style={styles.garmentList}>
+                                            {styleData.items?.map((item, index) => (
+                                                <View key={index} style={styles.garmentRow}>
+                                                    <TouchableOpacity onPress={() => openImageModal(styleData.item_images?.[index], item)} testID="garment-thumbnail">
+                                                        <Image
+                                                            source={styleData.item_images?.[index]}
+                                                            style={styles.garmentThumbnail}
+                                                            resizeMode="cover"
+                                                        />
+                                                    </TouchableOpacity>
+                                                    <Text style={styles.garmentText}>
+                                                        {item}
+                                                    </Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
+                        </>
+                    )}
 
                     <View style={styles.divider} />
 
@@ -137,11 +192,17 @@ export default function StyleDetailsScreen() {
                             >
                                 {selectedImage && (
                                     <>
+                                        {modalImageLoading && (
+                                            <View style={[StyleSheet.absoluteFill, { zIndex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+                                                <Skeleton width="90%" height="80%" />
+                                            </View>
+                                        )}
                                         <Image
                                             source={selectedImage}
                                             style={styles.fullScreenImage}
                                             resizeMode="contain"
                                             testID="modal-image"
+                                            onLoadEnd={() => setModalImageLoading(false)}
                                         />
                                         <View style={styles.captionContainer}>
                                             <Text style={styles.captionText}>{selectedItemName}</Text>

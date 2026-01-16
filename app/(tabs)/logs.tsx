@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import Skeleton from '../../components/Skeleton';
 
 const LOGS_DATA = [
     { id: '101', date: '2023.10.24', protocol: 'DATE_NIGHT', status: 'COMPLETE' },
@@ -11,20 +12,45 @@ const LOGS_DATA = [
 ];
 
 export default function LogsScreen() {
-    const renderItem = ({ item }: { item: any }) => (
-        <TouchableOpacity style={styles.logItem}>
-            <View style={styles.logLeft}>
-                <View style={[styles.statusDot, item.status === 'COMPLETE' ? styles.dotGreen : styles.dotGrey]} />
-                <View>
-                    <Text style={styles.logProtocol}>{item.protocol}</Text>
-                    <Text style={styles.logDate}>{item.date}</Text>
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const renderItem = ({ item }: { item: any }) => {
+        if (loading) {
+            return (
+                <View style={styles.logItem}>
+                    <View style={styles.logLeft}>
+                        <Skeleton width={8} height={8} borderRadius={4} />
+                        <View>
+                            <Skeleton width={120} height={16} style={{ marginBottom: 4 }} />
+                            <Skeleton width={80} height={12} />
+                        </View>
+                    </View>
                 </View>
-            </View>
-            <View style={styles.logRight}>
-                <Ionicons name="chevron-forward" size={16} color={Colors.textBody} />
-            </View>
-        </TouchableOpacity>
-    );
+            );
+        }
+
+        return (
+            <TouchableOpacity style={styles.logItem}>
+                <View style={styles.logLeft}>
+                    <View style={[styles.statusDot, item.status === 'COMPLETE' ? styles.dotGreen : styles.dotGrey]} />
+                    <View>
+                        <Text style={styles.logProtocol}>{item.protocol}</Text>
+                        <Text style={styles.logDate}>{item.date}</Text>
+                    </View>
+                </View>
+                <View style={styles.logRight}>
+                    <Ionicons name="chevron-forward" size={16} color={Colors.textBody} />
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <ScreenLayout>
@@ -34,9 +60,9 @@ export default function LogsScreen() {
                 </View>
 
                 <FlatList
-                    data={LOGS_DATA}
+                    data={loading ? [1, 2, 3] : LOGS_DATA}
                     renderItem={renderItem}
-                    keyExtractor={item => item.id}
+                    keyExtractor={(item) => (loading ? `skeleton-${item}` : item.id)}
                     contentContainerStyle={styles.list}
                 />
             </View>
