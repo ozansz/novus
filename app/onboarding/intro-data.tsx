@@ -8,7 +8,7 @@ export default function IntroDataScreen() {
             subtitle="BIOMETRIC INPUT"
             description="Precision requires data. Input your physical statistics to generate accurate fit modeling and proportion analysis."
             confirmText="ENTER DATA"
-            onConfirm={() => router.push('/onboarding/height')}
+            onConfirm={() => router.replace('/onboarding/height')}
         />
     );
 }

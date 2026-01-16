@@ -11,10 +11,18 @@ import { StyleImages } from '../../constants/StyleImages';
 
 const TOTAL_CARDS = 10;
 
+import { shallow } from 'zustand/shallow';
+
 export default function CalibrationScreen() {
     const [index, setIndex] = useState(0);
     const deckRef = useRef<CalibrationDeckRef>(null);
-    const { setStyleVector } = useNovusStore();
+    const { setStyleVector, styleVector } = useNovusStore(
+        (state) => ({
+            setStyleVector: state.setStyleVector,
+            styleVector: state.biometrics.styleVector
+        }),
+        shallow
+    );
 
     // Select 10 random styles on mount
     const selectedStyles = useMemo(() => {
@@ -32,18 +40,20 @@ export default function CalibrationScreen() {
 
     const handleSwipeRight = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        const currentStyle = selectedStyles[index];
+        const newStyleVector = { ...styleVector };
+        newStyleVector[currentStyle.name] = (newStyleVector[currentStyle.name] || 0) + 1;
+        setStyleVector(newStyleVector);
         setIndex((prev) => prev + 1);
-        // Logic: Add to style vector
     };
 
     const handleSwipeLeft = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setIndex((prev) => prev + 1);
-        // Logic: Ignore
     };
 
     const handleFinished = () => {
-        router.push('/onboarding/intro-data');
+        router.replace('/onboarding/height');
     };
 
     // If we exceeded cards, move on (handled by component or here)

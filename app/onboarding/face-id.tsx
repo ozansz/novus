@@ -8,7 +8,7 @@ import Colors from '../../constants/Colors';
 import { useNovusStore } from '../../stores/useNovusStore';
 
 export default function FaceIdScreen() {
-    const { setFaceData } = useNovusStore();
+    const setFaceData = useNovusStore((state) => state.setFaceData);
     const [permission, requestPermission] = useCameraPermissions();
     const [photo, setPhoto] = useState<string | null>(null);
     const cameraRef = useRef<CameraView>(null);
@@ -49,12 +49,12 @@ export default function FaceIdScreen() {
 
     const handleConfirm = () => {
         setFaceData(photo);
-        router.push('/onboarding/processing');
+        router.replace('/onboarding/processing');
     };
 
     const handleSkip = () => {
         setFaceData(null);
-        router.push('/onboarding/processing');
+        router.replace('/onboarding/processing');
     };
 
     const handleRetake = () => {

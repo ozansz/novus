@@ -5,9 +5,17 @@ import Colors from '../../constants/Colors';
 import { useCreditStore } from '../../stores/useCreditStore';
 import { useNovusStore } from '../../stores/useNovusStore';
 
+import { shallow } from 'zustand/shallow';
+
 export default function IDScreen() {
     const { credits, status } = useCreditStore();
-    const { biometrics } = useNovusStore();
+    const { faceData, buildArchetype } = useNovusStore(
+        (state) => ({
+            faceData: state.biometrics.faceData,
+            buildArchetype: state.biometrics.buildArchetype
+        }),
+        shallow
+    );
 
     return (
         <ScreenLayout>
@@ -25,8 +33,8 @@ export default function IDScreen() {
 
                     <View style={styles.cardBody}>
                         <View style={styles.avatarContainer}>
-                            {biometrics.faceData ? (
-                                <Image source={{ uri: biometrics.faceData }} style={styles.avatar} />
+                            {faceData ? (
+                                <Image source={{ uri: faceData }} style={styles.avatar} />
                             ) : (
                                 <View style={styles.avatarPlaceholder} />
                             )}
@@ -38,7 +46,7 @@ export default function IDScreen() {
                             </View>
                             <View style={styles.infoRow}>
                                 <Text style={styles.label}>ARCHETYPE</Text>
-                                <Text style={styles.value}>{biometrics.buildArchetype || 'UNKNOWN'}</Text>
+                                <Text style={styles.value}>{buildArchetype || 'UNKNOWN'}</Text>
                             </View>
                             <View style={styles.infoRow}>
                                 <Text style={styles.label}>CREDITS</Text>
