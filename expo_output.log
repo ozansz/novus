@@ -1,0 +1,23 @@
+Starting project at /app
+Starting Metro Bundler
+The following packages should be updated for best compatibility with the installed expo version:
+  @shopify/flash-list@2.2.0 - expected version: 2.0.2
+  react-native-reanimated@3.19.5 - expected version: ~4.1.1
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56.3% (172/338)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56.3% (669/920)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.8% (1129/1233)
+Web Bundled 13239ms node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js (1455 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 67ms node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 71ms node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 153ms node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_27360b54fd97b98e8f2c7621340966f5/node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console

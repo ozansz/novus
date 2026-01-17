@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ImageSourcePropType } from 'react-native';
+import { StyleSheet, Text, View, Platform, Pressable, ImageSourcePropType } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import ScreenLayout from '../../components/ScreenLayout';
 import CalibrationDeck, { CalibrationDeckRef } from '../../components/onboarding/CalibrationDeck';
@@ -56,6 +56,21 @@ export default function CalibrationScreen() {
         }
     }, [index]);
 
+    // Keyboard accessibility for Web
+    useEffect(() => {
+        if (Platform.OS === 'web') {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'ArrowLeft') {
+                    deckRef.current?.swipeLeft();
+                } else if (e.key === 'ArrowRight') {
+                    deckRef.current?.swipeRight();
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, []);
+
     return (
         <ScreenLayout>
             <View style={styles.container}>
@@ -77,15 +92,37 @@ export default function CalibrationScreen() {
 
                 <View style={styles.footer}>
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={[styles.actionButton, styles.discardBtn]} onPress={() => deckRef.current?.swipeLeft()}>
+                        <Pressable
+                            style={({ pressed, hovered }: any) => [
+                                styles.actionButton,
+                                styles.discardBtn,
+                                hovered && styles.discardBtnHover,
+                                pressed && styles.btnPressed
+                            ]}
+                            onPress={() => deckRef.current?.swipeLeft()}
+                            accessibilityLabel="Discard style"
+                            accessibilityRole="button"
+                            accessibilityHint="Swipes left to discard this style"
+                        >
                             <Text style={styles.actionBtnText}>DISCARD</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                         <View style={{ width: 20 }} />
-                        <TouchableOpacity style={[styles.actionButton, styles.acceptBtn]} onPress={() => deckRef.current?.swipeRight()}>
+                        <Pressable
+                            style={({ pressed, hovered }: any) => [
+                                styles.actionButton,
+                                styles.acceptBtn,
+                                hovered && styles.acceptBtnHover,
+                                pressed && styles.btnPressed
+                            ]}
+                            onPress={() => deckRef.current?.swipeRight()}
+                            accessibilityLabel="Accept style"
+                            accessibilityRole="button"
+                            accessibilityHint="Swipes right to accept this style"
+                        >
                             <Text style={[styles.actionBtnText, styles.acceptText]}>ACCEPT</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
-                    <Text style={styles.hintText}>SWIPE OR PRESS TO CALIBRATE</Text>
+                    <Text style={styles.hintText}>SWIPE, PRESS, OR USE ARROW KEYS</Text>
                 </View>
             </View>
         </ScreenLayout>
@@ -139,9 +176,20 @@ const styles = StyleSheet.create({
         borderColor: '#444',
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
+    discardBtnHover: {
+        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+        borderColor: '#ff4444',
+    },
     acceptBtn: {
         borderColor: Colors.volt,
         backgroundColor: 'rgba(208, 253, 62, 0.1)',
+    },
+    acceptBtnHover: {
+        backgroundColor: 'rgba(208, 253, 62, 0.2)',
+    },
+    btnPressed: {
+        opacity: 0.8,
+        transform: [{ scale: 0.98 }],
     },
     actionBtnText: {
         fontFamily: 'Oswald_500Medium',
