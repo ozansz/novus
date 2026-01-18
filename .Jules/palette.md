@@ -1,0 +1,1 @@
+## 2025-05-21 - Accessible Pressables **Learning:** `TouchableOpacity` lacks web accessibility features and hover states compared to `Pressable` in Expo Web. **Action:** Prefer `Pressable` with `accessibilityRole` and `style={({ pressed, hovered }) => ...}` for reusable UI components.
