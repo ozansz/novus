@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import ScreenLayout from '../ScreenLayout';
 import Colors from '../../constants/Colors';
@@ -26,7 +26,9 @@ export default function IntroSlide({
 }: IntroSlideProps) {
 
     useEffect(() => {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (Platform.OS !== 'web') {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
     }, []);
 
     return (
@@ -46,22 +48,39 @@ export default function IntroSlide({
                 <View style={styles.footer}>
                     {onSecondary && secondaryText && (
                         <Animated.View entering={FadeInUp.delay(1100).duration(600)} style={{ width: '100%', marginBottom: 15 }}>
-                            <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                onSecondary();
-                            }}>
+                            <Pressable
+                                style={({ pressed, hovered }: any) => [
+                                    styles.button,
+                                    styles.secondaryButton,
+                                    (pressed || hovered) && { opacity: 0.7, borderColor: Colors.textBody }
+                                ]}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    onSecondary();
+                                }}
+                                accessibilityRole="button"
+                                accessibilityLabel={secondaryText}
+                            >
                                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>[ {secondaryText} ]</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </Animated.View>
                     )}
 
                     <Animated.View entering={FadeInUp.delay(900).duration(600)} style={{ width: '100%' }}>
-                        <TouchableOpacity style={styles.button} onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                            onConfirm();
-                        }}>
+                        <Pressable
+                            style={({ pressed, hovered }: any) => [
+                                styles.button,
+                                (pressed || hovered) && { opacity: 0.8 }
+                            ]}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                onConfirm();
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel={confirmText}
+                        >
                             <Text style={styles.buttonText}>[ {confirmText} ]</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </Animated.View>
                 </View>
             </View>
