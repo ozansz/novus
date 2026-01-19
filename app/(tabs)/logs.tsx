@@ -1,44 +1,124 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, Platform, Alert, Button } from 'react-native';
 import ScreenLayout from '../../components/ScreenLayout';
 import Colors from '../../constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
+import TimelineCard from '../../components/TimelineCard';
+import * as Calendar from 'expo-calendar';
 
-const LOGS_DATA = [
-    { id: '101', date: '2023.10.24', protocol: 'DATE_NIGHT', status: 'COMPLETE' },
-    { id: '102', date: '2023.10.22', protocol: 'BOARDROOM', status: 'COMPLETE' },
-    { id: '103', date: '2023.10.15', protocol: 'NIGHT_OPS', status: 'ARCHIVED' },
-];
+interface Event {
+    id: string;
+    title: string;
+    startDate: Date;
+    endDate: Date;
+    location?: string;
+    notes?: string;
+    isMock?: boolean;
+}
 
 export default function LogsScreen() {
-    const renderItem = ({ item }: { item: any }) => (
-        <TouchableOpacity style={styles.logItem}>
-            <View style={styles.logLeft}>
-                <View style={[styles.statusDot, item.status === 'COMPLETE' ? styles.dotGreen : styles.dotGrey]} />
-                <View>
-                    <Text style={styles.logProtocol}>{item.protocol}</Text>
-                    <Text style={styles.logDate}>{item.date}</Text>
-                </View>
-            </View>
-            <View style={styles.logRight}>
-                <Ionicons name="chevron-forward" size={16} color={Colors.textBody} />
-            </View>
-        </TouchableOpacity>
+    const [events, setEvents] = useState<Event[]>([]);
+    const [hasPermission, setHasPermission] = useState<boolean>(false);
+
+    useEffect(() => {
+        (async () => {
+            if (Platform.OS === 'web') {
+                // Mock data for Web
+                setEvents([
+                    {
+                        id: '1',
+                        title: 'Tech Conference 2023',
+                        startDate: new Date(new Date().setHours(9, 0, 0, 0)),
+                        endDate: new Date(new Date().setHours(17, 0, 0, 0)),
+                        location: 'Moscone Center, SF',
+                        notes: 'Keynote speech about AI in Fashion.',
+                        isMock: true
+                    },
+                    {
+                        id: '2',
+                        title: 'Team Dinner',
+                        startDate: new Date(new Date().setHours(19, 30, 0, 0)),
+                        endDate: new Date(new Date().setHours(21, 30, 0, 0)),
+                        location: 'Nobu, Palo Alto',
+                        notes: 'Smart casual attire required.',
+                        isMock: true
+                    },
+                    {
+                        id: '3',
+                        title: 'Morning Run',
+                        startDate: new Date(new Date().setDate(new Date().getDate() + 1)), // Tomorrow
+                        endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+                        location: 'Central Park',
+                        notes: 'Training for marathon.',
+                        isMock: true
+                    }
+                ]);
+                return;
+            }
+
+            // Native: Request permissions
+            const { status } = await Calendar.requestCalendarPermissionsAsync();
+            if (status === 'granted') {
+                setHasPermission(true);
+                const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+                const calendarIds = calendars.map(c => c.id);
+                const startDate = new Date();
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + 7); // Next 7 days
+
+                const fetchedEvents = await Calendar.getEventsAsync(calendarIds, startDate, endDate);
+
+                // Sort by date
+                const sortedEvents = fetchedEvents.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+                setEvents(sortedEvents.map(e => ({
+                    id: e.id,
+                    title: e.title,
+                    startDate: new Date(e.startDate),
+                    endDate: new Date(e.endDate),
+                    location: e.location,
+                    notes: e.notes
+                })));
+            } else {
+                Alert.alert('Permission needed', 'We need access to your calendar to generate style suggestions based on your schedule.');
+            }
+        })();
+    }, []);
+
+    const renderItem = ({ item }: { item: Event }) => (
+        <TimelineCard
+            title={item.title}
+            startDate={item.startDate}
+            endDate={item.endDate}
+            location={item.location}
+            description={item.notes}
+            isMock={item.isMock}
+        />
     );
 
     return (
         <ScreenLayout>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>MISSION LOGS</Text>
+                    <Text style={styles.title}>TIMELINE</Text>
+                    <Text style={styles.subtitle}>UPCOMING OPERATIONS</Text>
                 </View>
 
-                <FlatList
-                    data={LOGS_DATA}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    contentContainerStyle={styles.list}
-                />
+                {events.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyText}>No events found.</Text>
+                        {!hasPermission && Platform.OS !== 'web' && (
+                            <Text style={styles.permissionHint}>Check permissions settings.</Text>
+                        )}
+                    </View>
+                ) : (
+                    <FlatList
+                        data={events}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={styles.list}
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
             </View>
         </ScreenLayout>
     );
@@ -58,45 +138,28 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: Colors.textH1,
     },
+    subtitle: {
+        fontFamily: 'JetBrainsMono_400Regular',
+        fontSize: 12,
+        color: Colors.volt,
+        marginTop: 5,
+    },
     list: {
         paddingBottom: 20,
     },
-    logItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    emptyState: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.border,
     },
-    logLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 15,
-    },
-    statusDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    },
-    dotGreen: {
-        backgroundColor: Colors.volt,
-    },
-    dotGrey: {
-        backgroundColor: '#444',
-    },
-    logProtocol: {
-        fontFamily: 'Oswald_500Medium',
-        fontSize: 16,
-        color: '#FFF',
-        marginBottom: 2,
-    },
-    logDate: {
+    emptyText: {
         fontFamily: 'JetBrainsMono_400Regular',
-        fontSize: 12,
-        color: '#666',
+        color: Colors.textBody,
     },
-    logRight: {
-        opacity: 0.5,
+    permissionHint: {
+        fontFamily: 'JetBrainsMono_400Regular',
+        color: Colors.textBody,
+        marginTop: 10,
+        fontSize: 12
     }
 });
