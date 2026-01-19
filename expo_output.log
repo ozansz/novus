@@ -1,0 +1,17 @@
+Starting project at /app
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+The following packages should be updated for best compatibility with the installed expo version:
+  @shopify/flash-list@2.2.0 - expected version: 2.0.2
+  react-native-reanimated@4.2.1 - expected version: ~4.1.1
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_8ab547f3cedb2cf3997abf28394d93d4/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_8ab547f3cedb2cf3997abf28394d93d4/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56.3% (153/337)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_8ab547f3cedb2cf3997abf28394d93d4/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56.3% (560/879)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_8ab547f3cedb2cf3997abf28394d93d4/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 70.8% ( 960/1143)
+Web node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_8ab547f3cedb2cf3997abf28394d93d4/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.1% (1416/1492)
+Web Bundled 15059ms node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@types+react@19.1.17_expo-constants@18.0.1_8ab547f3cedb2cf3997abf28394d93d4/node_modules/expo-router/entry.js (1590 modules)
+ LOG  [web] Logs will appear in the browser console
+› Detected a change in babel.config.js. Restart the server to see the new results. You may need to clear the bundler cache with the --clear flag for your changes to take effect.
