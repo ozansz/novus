@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import ScreenLayout from '../ScreenLayout';
 import Colors from '../../constants/Colors';
@@ -26,7 +26,10 @@ export default function IntroSlide({
 }: IntroSlideProps) {
 
     useEffect(() => {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // Prevent haptics on web to avoid warnings unless interacted
+        if (Platform.OS !== 'web') {
+             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
     }, []);
 
     return (
@@ -34,7 +37,7 @@ export default function IntroSlide({
             <View style={styles.container}>
                 <View style={styles.content}>
                     <Animated.View entering={FadeInDown.delay(300).duration(800)}>
-                        <Text style={styles.title}>{title}</Text>
+                        <Text style={styles.title} accessibilityRole="header">{title}</Text>
                         <Text style={styles.subtitle}>{subtitle}</Text>
                     </Animated.View>
 
@@ -46,22 +49,41 @@ export default function IntroSlide({
                 <View style={styles.footer}>
                     {onSecondary && secondaryText && (
                         <Animated.View entering={FadeInUp.delay(1100).duration(600)} style={{ width: '100%', marginBottom: 15 }}>
-                            <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                onSecondary();
-                            }}>
+                            <Pressable
+                                style={({ pressed, hovered }: any) => [
+                                    styles.button,
+                                    styles.secondaryButton,
+                                    hovered && styles.secondaryButtonHover,
+                                    pressed && styles.buttonPressed
+                                ]}
+                                onPress={() => {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    onSecondary();
+                                }}
+                                accessibilityRole="button"
+                                accessibilityLabel={secondaryText}
+                            >
                                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>[ {secondaryText} ]</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </Animated.View>
                     )}
 
                     <Animated.View entering={FadeInUp.delay(900).duration(600)} style={{ width: '100%' }}>
-                        <TouchableOpacity style={styles.button} onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                            onConfirm();
-                        }}>
+                        <Pressable
+                            style={({ pressed, hovered }: any) => [
+                                styles.button,
+                                hovered && styles.buttonHover,
+                                pressed && styles.buttonPressed
+                            ]}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                                onConfirm();
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel={confirmText}
+                        >
                             <Text style={styles.buttonText}>[ {confirmText} ]</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </Animated.View>
                 </View>
             </View>
@@ -113,6 +135,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.volt,
     },
+    buttonHover: {
+        opacity: 0.9,
+        transform: [{ scale: 1.02 }],
+    },
+    buttonPressed: {
+        opacity: 0.8,
+        transform: [{ scale: 0.98 }],
+    },
     buttonText: {
         fontFamily: 'Oswald_500Medium',
         fontSize: 16,
@@ -122,6 +152,10 @@ const styles = StyleSheet.create({
     secondaryButton: {
         backgroundColor: 'transparent',
         borderColor: Colors.border,
+    },
+    secondaryButtonHover: {
+        borderColor: Colors.volt,
+        backgroundColor: 'rgba(208, 253, 62, 0.05)',
     },
     secondaryButtonText: {
         color: Colors.textBody,
