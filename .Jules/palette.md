@@ -1,0 +1,1 @@
+## 2026-01-21 - [Interactive Elements] **Learning:** `TouchableOpacity` lacks default accessibility roles and web support (hover/focus) compared to `Pressable`. **Action:** Default to `Pressable` for all interactive elements, adding `accessibilityRole="button"` and semantic labels.
