@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View, Image } from 'react-native';
+import { Pressable, Text, StyleSheet, View, Image } from 'react-native';
 import Colors from '../../constants/Colors';
 
 interface MissionCardProps {
@@ -12,12 +12,17 @@ interface MissionCardProps {
 
 export default function MissionCard({ id, title, imageUri, selected, onPress }: MissionCardProps) {
     return (
-        <TouchableOpacity
-            activeOpacity={0.8}
+        <Pressable
             onPress={onPress}
-            style={[
+            accessibilityRole="button"
+            accessibilityLabel={`${title.replace('_', ' ')} Mission`}
+            accessibilityState={{ selected }}
+            // @ts-ignore: hovered is web-only
+            style={({ pressed, hovered }) => [
                 styles.card,
                 selected && styles.selectedCard,
+                hovered && !selected && styles.hoveredCard,
+                pressed && styles.pressedCard
             ]}>
             {/* Placeholder Visual if no image */}
             <View style={styles.imagePlaceholder}>
@@ -29,7 +34,7 @@ export default function MissionCard({ id, title, imageUri, selected, onPress }: 
                 <Text style={styles.idText}>// {id}</Text>
                 <Text style={[styles.titleText, selected && styles.selectedText]}>{title}</Text>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     );
 }
 
@@ -46,6 +51,12 @@ const styles = StyleSheet.create({
     selectedCard: {
         borderColor: Colors.volt,
         borderWidth: 2,
+    },
+    hoveredCard: {
+        borderColor: '#666',
+    },
+    pressedCard: {
+        opacity: 0.9,
     },
     imagePlaceholder: {
         ...StyleSheet.absoluteFillObject,
