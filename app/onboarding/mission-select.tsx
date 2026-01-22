@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
-// ... existing imports ...
+import { StyleSheet, Text, View, FlatList, Pressable } from 'react-native';
 
 import ScreenLayout from '../../components/ScreenLayout';
 import MissionCard from '../../components/onboarding/MissionCard';
@@ -61,15 +60,24 @@ export default function MissionSelectScreen() {
 
                 {/* Footer */}
                 <View style={styles.footer}>
-                    <TouchableOpacity
-                        style={[styles.button, !selectedMission && styles.buttonDisabled]}
+                    <Pressable
+                        // @ts-ignore: hovered is web-only
+                        style={({ pressed, hovered }) => [
+                            styles.button,
+                            !selectedMission && styles.buttonDisabled,
+                            selectedMission && hovered && styles.buttonHovered,
+                            selectedMission && pressed && styles.buttonPressed
+                        ]}
                         disabled={!selectedMission}
                         onPress={handleConfirm}
+                        accessibilityRole="button"
+                        accessibilityLabel="Confirm Protocol"
+                        accessibilityState={{ disabled: !selectedMission }}
                     >
                         <Text style={[styles.buttonText, !selectedMission && styles.buttonTextDisabled]}>
                             [ CONFIRM PROTOCOL ]
                         </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
             </View>
         </ScreenLayout>
@@ -128,6 +136,13 @@ const styles = StyleSheet.create({
     buttonDisabled: {
         backgroundColor: 'transparent',
         borderColor: Colors.border,
+    },
+    buttonHovered: {
+        opacity: 0.9,
+        backgroundColor: '#BFEF2D', // Slightly lighter volt
+    },
+    buttonPressed: {
+        opacity: 0.8,
     },
     buttonText: {
         fontFamily: 'Oswald_500Medium',
